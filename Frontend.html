@@ -1058,7 +1058,7 @@
   // ═══════════════════════════════════════════════
   //  CONFIG & STATE
   // ═══════════════════════════════════════════════
-  const API_BASE = 'http://184.169.217.118//api';
+  const API_BASE = 'http://184.169.217.118/api';
 
   const state = {
     page: 'discover',
@@ -2481,8 +2481,13 @@
     state.msgActiveThread = userId;
     const thread = state.msgThreads.find(t => t.userId === userId);
     if (thread) thread.unread = false;
-    render();
+    render();  // render immediately so input bar shows
     await loadMessages(userId);
+    // Focus input after messages load
+    setTimeout(() => {
+      const input = document.getElementById('msgInput');
+      if (input) input.focus();
+    }, 100);
   }
 
   async function refreshMessages() {
@@ -2493,14 +2498,20 @@
   }
 
   function fmtTime(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
+    if (!iso || iso === '__top__') return '';
+    // Ensure UTC parsing — append Z if no timezone indicator
+    let str = String(iso);
+    if (!str.endsWith('Z') && !str.includes('+') && str.includes('T')) str += 'Z';
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return '';
     const now = new Date();
     const diff = now - d;
+    if (diff < 0) return 'just now';        // clock skew guard
     if (diff < 60000) return 'just now';
-    if (diff < 3600000) return Math.floor(diff/60000) + 'm';
-    if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
-    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
   // ═══════════════════════════════════════════════
@@ -2658,10 +2669,10 @@
                 }
                 const isMe = m.from === state.user.id;
                 return `
-                  <div class="msg-bubble-wrap ${isMe ? 'me' : ''}">
+                  <div style="display:flex;gap:8px;align-items:flex-end;justify-content:${isMe ? 'flex-end' : 'flex-start'}">
                     ${!isMe ? `<div class="bubble-avatar">${bubbleAvatarHtml(activeThread ? activeThread.avatarUrl : null)}</div>` : ''}
-                    <div style="display:flex;flex-direction:column;${isMe ? 'align-items:flex-end' : 'align-items:flex-start'}">
-                      <div class="msg-bubble">${esc(m.text)}</div>
+                    <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'}">
+                      <div class="msg-bubble" style="${isMe ? 'background:linear-gradient(135deg,rgba(249,184,208,.3),rgba(212,184,249,.3));border-color:var(--lavender)' : ''}">${esc(m.text)}</div>
                       <div class="bubble-time">${fmtTime(m.time)}</div>
                     </div>
                     ${isMe ? `<div class="bubble-avatar">${bubbleAvatarHtml(state.user.avatar_url)}</div>` : ''}
