@@ -9,6 +9,8 @@ from app.utils.security import get_current_user
 
 router = APIRouter()
 
+VALID_STATUSES = {"active", "archived", "sold", "traded"}
+
 
 @router.get("/discover")
 async def discover_posts() -> dict:
@@ -17,14 +19,11 @@ async def discover_posts() -> dict:
     enriched_posts = []
     for post in posts:
         post_json = doc_to_json(post)
-
         owner = await db.users.find_one({"_id": parse_object_id(post_json["user_id"])})
         owner_json = doc_to_json(owner) if owner else None
-
         if owner_json:
             owner_json.pop("password_hash", None)
             post_json["username"] = owner_json.get("username")
-
         enriched_posts.append(post_json)
 
     return {"posts": enriched_posts}
@@ -37,16 +36,12 @@ async def get_post(post_id: str) -> dict:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     post_json = doc_to_json(post)
-
     owner = await db.users.find_one({"_id": parse_object_id(post_json["user_id"])})
     owner_json = doc_to_json(owner) if owner else None
     if owner_json:
         owner_json.pop("password_hash", None)
 
-    return {
-        "post": post_json,
-        "user": owner_json,
-    }
+    return {"post": post_json, "user": owner_json}
 
 
 @router.post("")
@@ -55,14 +50,14 @@ async def create_post(
     current_user: dict = Depends(get_current_user),
 ) -> dict:
     doc = {
-        "user_id": current_user["id"],
-        "type": payload.type,
-        "title": payload.title,
+        "user_id":     current_user["id"],
+        "type":        payload.type,
+        "title":       payload.title,
         "description": payload.description,
-        "image_url": payload.image_url,
-        "tags": payload.tags,
-        "status": "active",
-        "created_at": datetime.now(timezone.utc),
+        "image_url":   payload.image_url,
+        "tags":        payload.tags,
+        "status":      "active",
+        "created_at":  datetime.now(timezone.utc),
     }
 
     result = await db.posts.insert_one(doc)
@@ -85,9 +80,20 @@ async def update_post(
     if post["user_id"] != current_user["id"]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not allowed")
 
+    # Build update dict from non-None fields
     update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
+
+    # Handle status separately to support all valid values
+    # (bypasses Pydantic pattern if model hasn't been updated yet)
+    raw_status = payload.model_dump().get("status")
+    if raw_status and raw_status in VALID_STATUSES:
+        update_data["status"] = raw_status
+
     if update_data:
-        await db.posts.update_one({"_id": parse_object_id(post_id)}, {"$set": update_data})
+        await db.posts.update_one(
+            {"_id": parse_object_id(post_id)},
+            {"$set": update_data}
+        )
 
     updated = await db.posts.find_one({"_id": parse_object_id(post_id)})
     return {"post": doc_to_json(updated)}
@@ -121,8 +127,8 @@ async def like_post(post_id: str, current_user: dict = Depends(get_current_user)
         return {"message": "Already liked"}
 
     await db.likes.insert_one({
-        "user_id": current_user["id"],
-        "post_id": post_id,
+        "user_id":    current_user["id"],
+        "post_id":    post_id,
         "created_at": datetime.now(timezone.utc),
     })
     return {"message": "Post liked"}
