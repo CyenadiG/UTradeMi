@@ -1058,7 +1058,7 @@
   // ═══════════════════════════════════════════════
   //  CONFIG & STATE
   // ═══════════════════════════════════════════════
-  const API_BASE = 'http://184.169.217.118/api';
+  const API_BASE = 'http://184.169.217.118//api';
 
   const state = {
     page: 'discover',
@@ -2660,7 +2660,7 @@
                 return `
                   <div class="msg-bubble-wrap ${isMe ? 'me' : ''}">
                     ${!isMe ? `<div class="bubble-avatar">${bubbleAvatarHtml(activeThread ? activeThread.avatarUrl : null)}</div>` : ''}
-                    <div>
+                    <div style="display:flex;flex-direction:column;${isMe ? 'align-items:flex-end' : 'align-items:flex-start'}">
                       <div class="msg-bubble">${esc(m.text)}</div>
                       <div class="bubble-time">${fmtTime(m.time)}</div>
                     </div>
