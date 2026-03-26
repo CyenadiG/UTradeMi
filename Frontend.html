@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UTradeMi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink:       #f9b8d0;
+      --pink-deep:  #f086b0;
+      --lavender:   #d4b8f9;
+      --lav-deep:   #b48cff;
+      --lilac:      #ede0ff;
+      --rose:       #fce4ec;
+      --bg:         #fdf5fb;
+      --surface:    #fff8fd;
+      --surface2:   #f7edf9;
+      --border:     rgba(212,184,249,.35);
+      --border2:    rgba(249,184,208,.35);
+      --ink:        #2a1a35;
+      --ink2:       #7a6385;
+      --muted:      #b09abf;
+      --shadow-sm:  0 2px 12px rgba(180,140,255,.10);
+      --shadow:     0 8px 32px rgba(180,140,255,.15);
+      --shadow-lg:  0 16px 48px rgba(180,140,255,.22);
+      --radius:     20px;
+      --radius-lg:  28px;
+      --radius-xl:  36px;
+      --font:       'Nunito', sans-serif;
+      --font-serif: 'DM Serif Display', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 600px 400px at 0% 0%, rgba(249,184,208,.18), transparent 60%),
+        radial-gradient(ellipse 500px 400px at 100% 100%, rgba(212,184,249,.20), transparent 60%);
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 24px;
+      background: rgba(253,245,251,.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      color: var(--ink);
+      letter-spacing: -.3px;
+      margin-right: 8px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .logo span { color: var(--pink-deep); }
+
+    .topbar-search {
+      flex: 1; max-width: 340px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 14px; height: 38px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      transition: border-color .15s;
+    }
+    .topbar-search:focus-within { border-color: var(--lav-deep); }
+    .topbar-search input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: var(--font); font-size: 13px; color: var(--ink);
+    }
+    .topbar-search input::placeholder { color: var(--muted); }
+
+    .topbar-spacer { flex: 1; }
+
+    .nav-btn {
+      width: 40px; height: 40px; border-radius: 14px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      display: grid; place-items: center;
+      cursor: pointer; transition: .15s ease;
+      position: relative;
+    }
+    .nav-btn:hover { background: var(--lilac); border-color: var(--border); }
+    .nav-btn.active { background: linear-gradient(135deg, #f9b8d0 0%, #d4b8f9 100%); border-color: var(--border2); }
+    .nav-btn svg { display: block; }
+
+    .nav-btn .dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--pink-deep);
+      border: 2px solid var(--bg);
+    }
+
+    .avatar-btn {
+      width: 36px; height: 36px; border-radius: 999px;
+      border: 2.5px solid var(--lavender);
+      background: linear-gradient(135deg, #fce4ec 0%, #ede0ff 100%);
+      display: grid; place-items: center;
+      cursor: pointer; overflow: hidden;
+      transition: .15s ease;
+    }
+    .avatar-btn:hover { border-color: var(--lav-deep); transform: scale(1.05); }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    .avatar-wrap { position: relative; }
+    .avatar-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      min-width: 180px;
+      overflow: hidden;
+      z-index: 200;
+      animation: fadeUp .15s ease;
+    }
+    .avatar-dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      font-family: var(--font); font-size: 13px; font-weight: 700;
+      color: var(--ink); cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+      transition: .12s ease;
+    }
+    .avatar-dropdown-item:hover { background: var(--surface2); }
+    .avatar-dropdown-item.signout { color: #c2185b; }
+    .avatar-dropdown-item.signout:hover { background: #fce4ec; }
+    .avatar-dropdown-divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+    /* ── LAYOUT ── */
+    .app { min-height: calc(100vh - 64px); }
+    .page { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 14px;
+      font-family: var(--font); font-size: 13px; font-weight: 700;
+      cursor: pointer; border: 1.5px solid transparent;
+      transition: .15s ease; white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent; border-color: var(--border);
+      color: var(--ink2);
+    }
+    .btn-ghost:hover { background: var(--surface2); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+      border-color: rgba(212,184,249,.4);
+      color: var(--ink);
+      box-shadow: 0 4px 14px rgba(212,184,249,.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(212,184,249,.5); }
+    .btn-follow {
+      background: linear-gradient(135deg, #f9b8d0 0%, #d4b8f9 100%);
+      border-color: transparent; color: var(--ink);
+      padding: 8px 16px; font-size: 12px;
+      box-shadow: 0 4px 12px rgba(180,140,255,.2);
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── PILL / TAG ── */
+    .pill {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: .3px; text-transform: uppercase;
+    }
+    .pill-trade  { background: #fce4ec; color: #c2185b; border: 1px solid #f9b8d0; }
+    .pill-iso    { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .pill-sell   { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+    .pill-buy    { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+
+    /* ── STARS ── */
+    .stars { color: #f9b8d0; font-size: 15px; letter-spacing: 1px; }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ──────────────────────────────────────────── */
+    /*  PAGE: AUTH                                  */
+    /* ──────────────────────────────────────────── */
+    .auth-wrap {
+      min-height: calc(100vh - 64px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 16px;
+    }
+    .auth-card {
+      width: 100%; max-width: 420px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 40px 36px;
+      animation: fadeUp .4s ease;
+    }
+    .auth-logo {
+      font-family: var(--font-serif);
+      font-size: 32px; text-align: center; margin-bottom: 4px;
+    }
+    .auth-logo span { color: var(--pink-deep); }
+    .auth-tagline { text-align: center; color: var(--ink2); font-size: 13px; margin-bottom: 28px; }
+
+    .auth-tabs {
+      display: flex; gap: 0; margin-bottom: 28px;
+      background: var(--surface2);
+      border-radius: 14px; padding: 4px;
+    }
+    .auth-tab {
+      flex: 1; padding: 9px; border-radius: 11px;
+      border: none; cursor: pointer;
+      font-family: var(--font); font-size: 13px; font-weight: 700;
+      background: transparent; color: var(--ink2);
+      transition: .15s ease;
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
+    .field input {
+      width: 100%; padding: 11px 14px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: var(--font); font-size: 14px; color: var(--ink);
+      outline: none; transition: border-color .15s;
+    }
+    .field input:focus { border-color: var(--lav-deep); }
+    .field input::placeholder { color: var(--muted); }
+
+    .auth-submit {
+      width: 100%; padding: 13px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+      border: none; border-radius: 16px;
+      font-family: var(--font); font-size: 15px; font-weight: 800;
+      color: var(--ink); cursor: pointer;
+      box-shadow: 0 6px 20px rgba(212,184,249,.4);
+      transition: .2s ease;
+    }
+    .auth-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(212,184,249,.5); }
+
+    .auth-err {
+      margin-top: 12px; padding: 10px 14px;
+      background: #fce4ec; border: 1px solid #f9b8d0;
+      border-radius: 12px; font-size: 13px; color: #c2185b;
+      display: none;
+    }
+
+    /* ──────────────────────────────────────────── */
+    /*  PAGE: DISCOVER                              */
+    /* ──────────────────────────────────────────── */
+    .discover-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px; margin-bottom: 24px;
+    }
+    .discover-title { font-family: var(--font-serif); font-size: 28px; }
+    .discover-title span { color: var(--pink-deep); font-style: italic; }
+
+    .filter-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+    .filter-chip {
+      padding: 7px 16px; border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      cursor: pointer; color: var(--ink2);
+      transition: .15s ease;
+    }
+    .filter-chip:hover { background: var(--lilac); border-color: var(--lavender); }
+    .filter-chip.active {
+      background: linear-gradient(135deg, #f9b8d0 0%, #d4b8f9 100%);
+      border-color: transparent; color: var(--ink);
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .post-tile {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden; cursor: pointer;
+      transition: .2s ease;
+      animation: fadeUp .35s ease both;
+    }
+    .post-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: var(--lavender);
+    }
+
+    .post-tile-img {
+      width: 100%; aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #fce4ec 0%, #ede0ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .post-tile-img img { width: 100%; height: 100%; object-fit: cover; }
+    .post-tile-img .no-img-icon {
+      opacity: .35;
+    }
+
+    .post-tile-body { padding: 12px 14px 14px; }
+    .post-tile-user {
+      font-size: 12px; font-weight: 700; color: var(--ink2);
+      margin-bottom: 4px;
+    }
+    .post-tile-desc {
+      font-size: 13px; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; margin-bottom: 10px; line-height: 1.5;
+    }
+    .post-tile-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .empty-state {
+      grid-column: 1/-1;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 60px 20px; color: var(--muted); gap: 12px;
+    }
+    .empty-icon {
+      width: 72px; height: 72px; border-radius: 999px;
+      background: linear-gradient(135deg, #fce4ec, #ede0ff);
+      display: grid; place-items: center;
+    }
+
+    /* ── REVISIT LIKES SECTION ── */
+    .revisit-section {
+      margin-bottom: 24px;
+    }
+    .revisit-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .revisit-title {
+      font-family: var(--font-serif); font-size: 20px; color: var(--ink);
+    }
+    .revisit-title span { color: var(--pink-deep); font-style: italic; }
+    .revisit-see-all {
+      font-size: 12px; font-weight: 800; color: var(--lav-deep);
+      background: none; border: none; cursor: pointer; font-family: var(--font);
+      transition: .15s ease;
+    }
+    .revisit-see-all:hover { color: var(--pink-deep); text-decoration: underline; }
+    .revisit-scroll {
+      display: flex; gap: 12px;
+      overflow-x: auto; padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .revisit-scroll::-webkit-scrollbar { display: none; }
+    .revisit-card {
+      flex-shrink: 0; width: 130px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden; cursor: pointer;
+      transition: .2s ease;
+      animation: fadeUp .3s ease both;
+      position: relative;
+    }
+    .revisit-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: var(--lavender);
+    }
+    .revisit-card-img {
+      width: 100%; aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #fce4ec 0%, #ede0ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .revisit-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .revisit-card-heart {
+      position: absolute; top: 6px; right: 6px;
+      width: 24px; height: 24px; border-radius: 999px;
+      background: rgba(255,255,255,.85);
+      display: grid; place-items: center;
+      border: 1px solid var(--border2);
+    }
+    .revisit-card-body { padding: 7px 9px 9px; }
+    .revisit-card-user { font-size: 10px; font-weight: 800; color: var(--muted); margin-bottom: 2px; }
+    .revisit-card-desc {
+      font-size: 11px; color: var(--ink);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; line-height: 1.4;
+    }
+
+    /* ── DISCOVER TOOLBAR ── */
+    .discover-toolbar {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 16px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toolbar-section {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .toolbar-divider {
+      width: 1px; height: 28px;
+      background: var(--border);
+      margin: 0 4px; flex-shrink: 0;
+    }
+    .toolbar-label {
+      font-size: 11px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+      white-space: nowrap;
+    }
+
+    .sort-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      color: var(--ink2); cursor: pointer;
+      transition: .15s ease; white-space: nowrap;
+    }
+    .sort-btn:hover { background: var(--lilac); border-color: var(--lavender); }
+    .sort-btn.active {
+      background: linear-gradient(135deg, rgba(249,184,208,.3), rgba(212,184,249,.3));
+      border-color: var(--lavender); color: var(--ink);
+    }
+    .sort-btn svg { flex-shrink: 0; }
+
+    /* ── TAG CLOUD ── */
+    .tag-cloud-wrap {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .tag-cloud-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .tag-cloud-title {
+      font-size: 12px; font-weight: 800; color: var(--ink2);
+      text-transform: uppercase; letter-spacing: .5px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tag-cloud-clear {
+      font-size: 11px; font-weight: 700; color: var(--pink-deep);
+      cursor: pointer; background: none; border: none;
+      font-family: var(--font);
+    }
+    .tag-cloud-clear:hover { text-decoration: underline; }
+    .tag-cloud {
+      display: flex; flex-wrap: wrap; gap: 7px;
+    }
+    .cloud-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      color: var(--ink2); cursor: pointer;
+      transition: .15s ease;
+    }
+    .cloud-tag:hover { background: var(--lilac); border-color: var(--lavender); color: var(--ink); }
+    .cloud-tag.active {
+      background: linear-gradient(135deg, rgba(249,184,208,.35), rgba(212,184,249,.35));
+      border-color: var(--lavender); color: var(--ink);
+    }
+    .cloud-tag .tag-count {
+      font-size: 10px; font-weight: 900;
+      background: rgba(180,140,255,.18);
+      padding: 1px 6px; border-radius: 999px;
+      color: var(--lav-deep);
+    }
+    .cloud-tag.active .tag-count {
+      background: rgba(180,140,255,.3);
+    }
+
+    /* active tag banner */
+    .active-tag-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(249,184,208,.2), rgba(212,184,249,.2));
+      border: 1.5px solid var(--lavender);
+      border-radius: 14px;
+      font-size: 13px; font-weight: 700; color: var(--ink);
+      animation: fadeUp .2s ease;
+    }
+    .active-tag-banner button {
+      margin-left: auto; background: none; border: none;
+      cursor: pointer; color: var(--ink2); font-size: 16px; line-height: 1;
+    }
+    .active-tag-banner button:hover { color: var(--pink-deep); }
+
+    /* post tile like badge */
+    .post-like-badge {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 700; color: var(--ink2);
+    }
+
+    /* clickable inline tag */
+    .inline-tag {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 999px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; color: var(--ink2);
+      cursor: pointer; transition: .12s ease;
+    }
+    .inline-tag:hover {
+      background: var(--lilac); border-color: var(--lavender);
+      color: var(--ink);
+    }
+
+    /* ──────────────────────────────────────────── */
+    /*  PAGE: PROFILE                               */
+    /* ──────────────────────────────────────────── */
+    .profile-banner {
+      height: 72px; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: linear-gradient(135deg, #fce4ec 0%, #ede0ff 40%, #d4b8f9 100%);
+      position: relative; overflow: hidden;
+    }
+    .profile-banner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='30' fill='none' stroke='rgba(255,255,255,.18)' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='18' fill='none' stroke='rgba(255,255,255,.12)' stroke-width='1'/%3E%3C/svg%3E") repeat;
+      background-size: 80px 80px;
+    }
+
+    .profile-body { padding: 0 28px 24px; }
+    .profile-top {
+      display: flex; align-items: flex-end; gap: 20px;
+      margin-top: -36px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+      width: 72px; height: 72px; border-radius: 999px;
+      border: 3px solid var(--surface);
+      background: linear-gradient(135deg, #fce4ec, #ede0ff);
+      display: grid; place-items: center;
+      flex-shrink: 0; overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-info { flex: 1; min-width: 0; padding-top: 38px; }
+    .profile-name {
+      font-family: var(--font-serif); font-size: 24px;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    .profile-bio { font-size: 13px; color: var(--ink2); margin-bottom: 8px; line-height: 1.5; }
+    .profile-stat-chips {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+    }
+    .profile-stat-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; color: var(--ink2);
+    }
+    .profile-stat-chip .chip-val { color: var(--ink); font-size: 12px; }
+    .profile-stat-chip.chip-rating { background: rgba(249,184,208,.15); border-color: var(--border2); }
+    .profile-stat-chip.chip-ship   { background: rgba(212,184,249,.15); border-color: var(--border); }
+    .profile-stats {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      font-size: 13px; color: var(--ink2);
+    }
+    .profile-stat strong { color: var(--ink); font-weight: 800; }
+
+    .profile-actions { display: flex; gap: 8px; align-items: center; padding-top: 38px; }
+
+    .profile-meta-row {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .profile-meta-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 12px; color: var(--ink2);
+    }
+
+    .tabs {
+      display: flex; gap: 4px; flex-wrap: wrap;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 0; margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 10px 18px; border: none; background: transparent;
+      font-family: var(--font); font-size: 13px; font-weight: 700;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1.5px; transition: .15s ease;
+    }
+    .tab-btn:hover { color: var(--ink2); }
+    .tab-btn.active {
+      color: var(--ink);
+      border-bottom-color: var(--pink-deep);
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+
+    .review-card {
+      padding: 16px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .3s ease both;
+    }
+    .review-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .reviewer-name { font-weight: 800; font-size: 13px; cursor: pointer; }
+    .reviewer-name:hover { color: var(--pink-deep); }
+    .review-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+    .review-shipping { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* ──────────────────────────────────────────── */
+    /*  PAGE: CREATE POST                           */
+    /* ──────────────────────────────────────────── */
+    .create-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px; align-items: start;
+    }
+
+    .upload-zone {
+      aspect-ratio: 3/4;
+      border-radius: var(--radius-lg);
+      border: 2px dashed var(--lavender);
+      background: linear-gradient(135deg, rgba(252,228,236,.3) 0%, rgba(237,224,255,.3) 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; cursor: pointer; position: relative; overflow: hidden;
+      transition: .2s ease;
+    }
+    .upload-zone:hover { border-color: var(--lav-deep); background: rgba(237,224,255,.25); }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+    .upload-zone img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .upload-icon {
+      width: 52px; height: 52px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--pink), var(--lavender));
+      display: grid; place-items: center;
+      box-shadow: 0 4px 14px rgba(212,184,249,.35);
+    }
+    .upload-hint { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+    .create-form { display: flex; flex-direction: column; gap: 18px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 12px; font-weight: 800; color: var(--ink2); text-transform: uppercase; letter-spacing: .5px; }
+    .form-input, .form-textarea {
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: var(--font); font-size: 14px; color: var(--ink);
+      outline: none; transition: border-color .15s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--lav-deep); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    .type-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    .type-option {
+      padding: 12px 14px; border-radius: 16px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer; transition: .15s ease;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .type-option:hover { background: var(--lilac); border-color: var(--lavender); }
+    .type-option.selected {
+      background: linear-gradient(135deg, rgba(249,184,208,.25) 0%, rgba(212,184,249,.25) 100%);
+      border-color: var(--lavender);
+    }
+    .type-option input { display: none; }
+    .type-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0;
+      transition: .15s ease;
+    }
+    .type-option.selected .type-dot {
+      background: linear-gradient(135deg, var(--pink-deep), var(--lav-deep));
+      border-color: transparent;
+    }
+    .type-label { font-size: 13px; font-weight: 700; }
+    .type-sub { font-size: 11px; color: var(--muted); }
+
+    .form-actions {
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+
+    /* ──────────────────────────────────────────── */
+    /*  PAGE: POST DETAIL                           */
+    /* ──────────────────────────────────────────── */
+    .post-detail-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px; align-items: start;
+    }
+
+    .post-img-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .post-img-card .post-img {
+      width: 100%; aspect-ratio: 3/4; object-fit: cover;
+      display: block;
+    }
+    .post-img-placeholder {
+      width: 100%; aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #fce4ec 0%, #ede0ff 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .post-info-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .post-info-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .post-owner {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .post-owner-avatar {
+      width: 40px; height: 40px; border-radius: 999px;
+      background: linear-gradient(135deg, #fce4ec, #ede0ff);
+      display: grid; place-items: center; overflow: hidden;
+      border: 2px solid var(--lavender);
+    }
+    .post-owner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .post-owner-name { font-weight: 800; font-size: 15px; }
+    .post-owner-rating { font-size: 12px; color: var(--muted); }
+
+    .post-info-body { padding: 20px 24px; }
+    .post-desc { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 14px 0; }
+    .post-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tag {
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; color: var(--ink2);
+    }
+
+    /* ──────────────────────────────────────────── */
+    /*  LOADING / SPINNER                           */
+    /* ──────────────────────────────────────────── */
+    .spinner-wrap {
+      display: flex; justify-content: center; padding: 60px 0;
+    }
+    .spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid var(--border);
+      border-top-color: var(--lav-deep);
+      animation: spin .7s linear infinite;
+    }
+
+    /* ──────────────────────────────────────────── */
+    /*  TOAST                                       */
+    /* ──────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: #fff;
+      padding: 12px 22px; border-radius: 14px;
+      font-size: 13px; font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      z-index: 9999; transition: transform .3s ease, opacity .3s ease;
+      opacity: 0; pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.error { background: #c2185b; }
+    .toast.success { background: #2e7d32; }
+
+    /* ──────────────────────────────────────────── */
+    /*  ANIMATIONS                                  */
+    /* ──────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .page-anim { animation: fadeUp .35s ease; }
+
+    /* ──────────────────────────────────────────── */
+    /*  RESPONSIVE                                  */
+    /* ──────────────────────────────────────────── */
+    @media (max-width: 780px) {
+      .create-layout { grid-template-columns: 1fr; }
+      .post-detail-layout { grid-template-columns: 1fr; }
+      .type-grid { grid-template-columns: 1fr; }
+      .topbar-search { max-width: 200px; }
+    }
+    @media (max-width: 520px) {
+      .page { padding: 16px; }
+      .topbar { padding: 0 14px; }
+      .profile-body { padding: 0 16px 20px; }
+    }
+    /* ── MESSAGING LAYOUT ── */
+    .msg-layout {
+      display: grid; grid-template-columns: 280px 1fr 260px;
+      height: calc(100vh - 128px); min-height: 520px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl); box-shadow: var(--shadow); overflow: hidden;
+    }
+    @media (max-width: 1050px) {
+      .msg-layout { grid-template-columns: 260px 1fr; }
+      .msg-right-panel { display: none !important; }
+    }
+    @media (max-width: 680px) {
+      .msg-layout { grid-template-columns: 1fr; height: auto; }
+      .msg-sidebar { max-height: 220px; border-right: none; border-bottom: 1.5px solid var(--border); }
+    }
+    .msg-sidebar { display: flex; flex-direction: column; border-right: 1.5px solid var(--border); background: var(--surface); }
+    .msg-sidebar-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .msg-sidebar-title { font-family: var(--font-serif); font-size: 18px; }
+    .msg-thread-list { flex: 1; overflow-y: auto; padding: 6px; }
+    .msg-thread { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 14px; cursor: pointer; transition: .15s ease; }
+    .msg-thread:hover { background: var(--surface2); }
+    .msg-thread.active { background: linear-gradient(135deg, rgba(249,184,208,.2), rgba(212,184,249,.2)); }
+    .msg-thread-avatar { width: 40px; height: 40px; border-radius: 999px; flex-shrink: 0; background: linear-gradient(135deg, #fce4ec, #ede0ff); display: grid; place-items: center; overflow: hidden; border: 2px solid var(--lavender); }
+    .msg-thread-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-thread-info { flex: 1; min-width: 0; }
+    .msg-thread-name { font-weight: 800; font-size: 13px; }
+    .msg-thread-preview { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .msg-thread-time { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .msg-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink-deep); display: inline-block; }
+    /* centre chat */
+    .msg-chat { display: flex; flex-direction: column; height: 100%; border-right: 1.5px solid var(--border); }
+    .msg-chat-head { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--surface); }
+    .msg-chat-head-info { flex: 1; }
+    .msg-chat-head-name { font-weight: 800; font-size: 14px; }
+    .msg-chat-head-sub { font-size: 11px; color: var(--muted); }
+    .msg-body { flex: 1; overflow-y: auto; padding: 18px 18px 10px; display: flex; flex-direction: column; gap: 10px; }
+    .msg-system { text-align: center; padding: 5px 14px; margin: 2px auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 11px; color: var(--ink2); max-width: 80%; }
+    .msg-safety-card { margin: 4px auto; max-width: 92%; background: linear-gradient(135deg, rgba(249,184,208,.15), rgba(212,184,249,.15)); border: 1.5px solid var(--lavender); border-radius: 16px; padding: 14px 16px; font-size: 13px; }
+    .msg-safety-title { font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .msg-safety-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .msg-bubble-wrap { display: flex; gap: 8px; align-items: flex-end; }
+    .msg-bubble-wrap.me { flex-direction: row-reverse; }
+    .bubble-avatar { width: 26px; height: 26px; border-radius: 999px; flex-shrink: 0; background: linear-gradient(135deg, #fce4ec, #ede0ff); display: grid; place-items: center; overflow: hidden; border: 1.5px solid var(--lavender); }
+    .bubble-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-bubble { max-width: 68%; padding: 9px 13px; border-radius: 16px; font-size: 13px; line-height: 1.5; border: 1.5px solid var(--border); background: var(--surface2); color: var(--ink); word-break: break-word; }
+    .msg-bubble-wrap.me .msg-bubble { background: linear-gradient(135deg, rgba(249,184,208,.3), rgba(212,184,249,.3)); border-color: var(--lavender); }
+    .bubble-time { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .msg-post-ctx { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; max-width: 280px; transition: .15s ease; }
+    .msg-post-ctx:hover { border-color: var(--lavender); }
+    .msg-post-ctx-img { width: 38px; height: 38px; border-radius: 8px; background: linear-gradient(135deg, #fce4ec, #ede0ff); overflow: hidden; flex-shrink: 0; }
+    .msg-post-ctx-img img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-post-ctx-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .msg-post-ctx-title { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .msg-input-bar { padding: 11px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; background: var(--surface); }
+    .msg-input { flex: 1; padding: 9px 14px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 999px; font-family: var(--font); font-size: 13px; color: var(--ink); outline: none; transition: border-color .15s; }
+    .msg-input:focus { border-color: var(--lav-deep); }
+    .msg-input::placeholder { color: var(--muted); }
+    .msg-send-btn { width: 36px; height: 36px; border-radius: 999px; flex-shrink: 0; background: linear-gradient(135deg, var(--pink), var(--lavender)); border: none; cursor: pointer; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(212,184,249,.4); transition: .15s ease; }
+    .msg-send-btn:hover { transform: scale(1.08); }
+    .msg-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); padding: 40px; }
+    .msg-empty-icon { width: 64px; height: 64px; border-radius: 999px; background: linear-gradient(135deg, #fce4ec, #ede0ff); display: grid; place-items: center; }
+    /* right panel */
+    .msg-right-panel { border-left: 1.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; overflow-y: auto; }
+    .msg-right-section { padding: 16px; border-bottom: 1px solid var(--border); }
+    .msg-right-section:last-child { border-bottom: none; }
+    .msg-right-user { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+    .msg-right-avatar { width: 54px; height: 54px; border-radius: 999px; background: linear-gradient(135deg, #fce4ec, #ede0ff); display: grid; place-items: center; overflow: hidden; border: 2px solid var(--lavender); }
+    .msg-right-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-right-username { font-weight: 800; font-size: 14px; cursor: pointer; }
+    .msg-right-username:hover { color: var(--pink-deep); }
+    .msg-right-meta { font-size: 11px; color: var(--muted); }
+    .msg-right-label { font-size: 11px; font-weight: 800; color: var(--ink2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .msg-item-row { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: .15s; }
+    .msg-item-row:hover { opacity: .8; }
+    .msg-item-thumb { width: 50px; height: 50px; border-radius: 10px; flex-shrink: 0; background: linear-gradient(135deg, #fce4ec, #ede0ff); overflow: hidden; }
+    .msg-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-item-desc { font-size: 12px; color: var(--ink2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .msg-safety-banner { padding: 9px 12px; background: rgba(212,184,249,.1); border: 1px solid var(--border); border-radius: 12px; font-size: 11px; color: var(--ink2); line-height: 1.5; display: flex; gap: 6px; align-items: flex-start; }
+    /* item image panel */
+    .msg-item-img-card {
+      width: 100%; aspect-ratio: 3/4; border-radius: 16px; overflow: hidden;
+      background: linear-gradient(135deg, #fce4ec, #ede0ff);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: .15s ease; margin-bottom: 10px;
+    }
+    .msg-item-img-card:hover { opacity: .9; }
+    .msg-item-img-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* trade offer buttons */
+    .trade-accept-btn {
+      width: 100%; padding: 11px; border-radius: 14px; border: none; cursor: pointer;
+      font-family: var(--font); font-size: 13px; font-weight: 800;
+      background: linear-gradient(135deg, #b8f9d4, #b8d4f9);
+      color: #1a3a2a; transition: .15s ease;
+    }
+    .trade-accept-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(184,249,212,.5); }
+    .trade-decline-btn {
+      width: 100%; padding: 11px; border-radius: 14px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      font-family: var(--font); font-size: 13px; font-weight: 800;
+      background: transparent; color: var(--ink2); transition: .15s ease;
+    }
+    .trade-decline-btn:hover { background: #fce4ec; border-color: #f9b8d0; color: #c2185b; }
+    .trade-status-badge {
+      width: 100%; padding: 10px 14px; border-radius: 14px; text-align: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .trade-status-accepted { background: rgba(184,249,212,.25); color: #2e7d32; border: 1.5px solid #b8f9d4; }
+    .trade-status-declined { background: rgba(252,228,236,.4); color: #c2185b; border: 1.5px solid #f9b8d0; }
+
+    /* ── REVIEW PAGE ── */
+    .review-page { max-width: 560px; margin: 0 auto; }
+    .star-row {
+      display: flex; gap: 8px; justify-content: center;
+      margin: 20px 0;
+    }
+    .star-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 36px; line-height: 1; padding: 2px;
+      transition: transform .12s ease;
+      color: #e0d4f0;
+    }
+    .star-btn:hover { transform: scale(1.15); }
+    .star-btn.lit { color: #f9b8d0; }
+    .star-btn.hover { color: #f086b0; transform: scale(1.15); }
+    .rating-label {
+      text-align: center; font-size: 13px; font-weight: 700;
+      color: var(--ink2); min-height: 20px; margin-bottom: 4px;
+    }
+    .review-user-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(249,184,208,.12), rgba(212,184,249,.12));
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+    }
+    .review-user-avatar {
+      width: 52px; height: 52px; border-radius: 999px;
+      background: linear-gradient(135deg, #fce4ec, #ede0ff);
+      display: grid; place-items: center; overflow: hidden;
+      border: 2px solid var(--lavender); flex-shrink: 0;
+    }
+    .review-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .review-submit-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--pink), var(--lavender));
+      border: none; border-radius: 16px; cursor: pointer;
+      font-family: var(--font); font-size: 15px; font-weight: 800;
+      color: var(--ink);
+      box-shadow: 0 6px 20px rgba(212,184,249,.4);
+      transition: .2s ease; margin-top: 8px;
+    }
+    .review-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(212,184,249,.5); }
+    .review-submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <nav class="topbar" id="topbar">
+    <div class="logo" onclick="goTo('discover')">UTrade<span>Mi</span></div>
+
+    <div class="topbar-search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="#b09abf" stroke-width="2"/>
+        <path d="M16.5 16.5L21 21" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input placeholder="Search photocards…" id="searchInput" oninput="state.discoverSearch=this.value; if(state.page==='discover') render()" />
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <button class="nav-btn" id="navDiscover" onclick="goTo('discover')" title="Discover">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+        <path d="M17 17L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <button class="nav-btn" id="navCreate" onclick="goTo('create')" title="New Post">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <button class="nav-btn" id="navMessages" onclick="goTo('messages')" title="Messages">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M5 6h14v10H8l-3 3V6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="avatar-wrap" id="avatarWrap">
+      <div class="avatar-btn" onclick="toggleAvatarMenu(event)" title="My Profile" id="myAvatarBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/>
+          <path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="avatar-dropdown" id="avatarDropdown" style="display:none">
+        <!-- populated by renderAvatarDropdown() -->
+      </div>
+    </div>
+  </nav>
+
+  <div class="app">
+    <div id="root"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // ═══════════════════════════════════════════════
+  //  CONFIG & STATE
+  // ═══════════════════════════════════════════════
+  const API_BASE = 'http://127.0.0.1:8000/api';
+
+  const state = {
+    page: 'discover',
+    user: null,
+    authTab: 'login',
+    discoverFilter: 'all',
+    discoverSort: 'recent',   // 'recent' | 'popular'
+    discoverTag: null,        // active tag string filter
+    discoverSearch: '',       // search query
+    discoverPosts: [],
+    discoverLikes: {},        // postId -> like count (fetched client-side)
+    discoverLoading: false,
+    likedPosts: [],            // posts this user has liked (for revisit section)
+    profileUserId: null,   // whose profile to view
+    profileUser: null,
+    profileTab: 'trading',
+    profilePosts: [],
+    profileReviews: [],
+    profileLoading: false,
+    postDetail: null,
+    postOwner: null,
+    createDraft: { type: 'trading', title: '', description: '', tags: '', imageUrl: null, imageFile: null },
+    createLoading: false,
+    prevPage: null,
+    reviewTargetUser: null,  // user being reviewed
+    reviewRating: 0,         // 1-5 hover/selected star
+    reviewHover: 0,          // star hover state
+    // Messaging
+    msgThreads: [],          // [{userId, username, avatarUrl, lastMsg, lastTime, unread, postContext}]
+    msgActiveThread: null,   // userId string
+    msgMessages: {},         // userId -> [{id, from, text, time, type}]  (client-side store)
+    msgInput: '',
+    msgPostContext: null,    // post to attach when starting from post detail
+  };
+
+  // ═══════════════════════════════════════════════
+  //  API HELPERS
+  // ═══════════════════════════════════════════════
+  function getToken() { return localStorage.getItem('utm_token'); }
+  function saveToken(t) { localStorage.setItem('utm_token', t); }
+  function clearToken() { localStorage.removeItem('utm_token'); }
+
+  function renderAvatarDropdown() {
+    const dd = document.getElementById('avatarDropdown');
+    if (!dd) return;
+    if (state.user) {
+      dd.innerHTML = `
+        <button class="avatar-dropdown-item" onclick="closeAvatarMenu(); goTo('profile')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          My Profile
+        </button>
+        <button class="avatar-dropdown-item" onclick="closeAvatarMenu(); goTo('editprofile')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          Edit Profile
+        </button>
+        <div class="avatar-dropdown-divider"></div>
+        <button class="avatar-dropdown-item signout" onclick="handleSignOut()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign Out
+        </button>`;
+    } else {
+      dd.innerHTML = `
+        <button class="avatar-dropdown-item" onclick="closeAvatarMenu(); goTo('auth'); state.authTab='login'; render()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign In
+        </button>
+        <div class="avatar-dropdown-divider"></div>
+        <button class="avatar-dropdown-item" style="color:var(--pink-deep)" onclick="closeAvatarMenu(); goTo('auth'); state.authTab='register'; render()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 3v6M16 6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Join UTradeMi
+        </button>`;
+    }
+  }
+
+  function toggleAvatarMenu(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('avatarDropdown');
+    if (!dd) return;
+    const isOpen = dd.style.display !== 'none';
+    if (isOpen) {
+      dd.style.display = 'none';
+    } else {
+      renderAvatarDropdown();
+      dd.style.display = 'block';
+    }
+  }
+
+  function closeAvatarMenu() {
+    const dd = document.getElementById('avatarDropdown');
+    if (dd) dd.style.display = 'none';
+  }
+
+  function handleSignOut() {
+    closeAvatarMenu();
+    clearToken();
+    state.user = null;
+    state.likedPosts = [];
+    state.msgThreads = [];
+    state.msgMessages = {};
+    state.msgActiveThread = null;
+    // Reset avatar btn
+    const ab = document.getElementById('myAvatarBtn');
+    if (ab) ab.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`;
+    toast('Signed out. See you soon! 👋', '');
+    goTo('discover');
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', () => closeAvatarMenu());
+
+  async function api(path, opts = {}) {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(`${API_BASE}${path}`, { ...opts, headers });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    return data;
+  }
+
+  // ═══════════════════════════════════════════════
+  //  TOAST
+  // ═══════════════════════════════════════════════
+  let toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+  }
+
+  // ═══════════════════════════════════════════════
+  //  ROUTER
+  // ═══════════════════════════════════════════════
+  async function goTo(page, params = {}) {
+    state.prevPage = state.page;
+    state.page = page;
+
+    // update nav highlights
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (page === 'discover')  document.getElementById('navDiscover')?.classList.add('active');
+    if (page === 'create')    document.getElementById('navCreate')?.classList.add('active');
+    if (page === 'messages')  document.getElementById('navMessages')?.classList.add('active');
+
+    if (page === 'discover') await loadDiscover();
+    if (page === 'profile') {
+      state.profileUserId = params.userId || state.user?.id || null;
+      state.profileTab = 'trading';
+      await loadProfile();
+    }
+    if (page === 'post') {
+      state.postDetail = params.post || null;
+      state.postOwner = params.owner || null;
+      if (params.postId) await loadPost(params.postId);
+    }
+    if (page === 'review') {
+      state.reviewTargetUser = params.user || null;
+      state.reviewRating = 0;
+      state.reviewHover = 0;
+      // If only userId passed, load the user
+      if (!state.reviewTargetUser && params.userId) {
+        try {
+          const d = await api(`/users/${params.userId}`);
+          state.reviewTargetUser = d.user;
+        } catch(e) {}
+      }
+    }
+    if (page === 'messages') {
+      await loadAllThreads();
+      if (params.userId && params.username) {
+        await openMsgThread(params.userId, params.username, params.avatarUrl || null, params.postContext || null);
+      }
+    }
+    render();
+  }
+
+  // ═══════════════════════════════════════════════
+  //  DATA LOADERS
+  // ═══════════════════════════════════════════════
+  async function loadDiscover() {
+    state.discoverLoading = true; render();
+    try {
+      const data = await api('/posts/discover');
+      state.discoverPosts = data.posts || [];
+      // Fetch like counts in parallel (best-effort)
+      const likeCounts = {};
+      await Promise.allSettled(
+        state.discoverPosts.map(async p => {
+          try {
+            // We count likes from the likes collection via user likes endpoint —
+            // approximate: store count from post doc if backend exposes it, else use 0
+            likeCounts[p.id] = p.likes_count || 0;
+          } catch(e) { likeCounts[p.id] = 0; }
+        })
+      );
+      state.discoverLikes = likeCounts;
+
+      // Load user's liked posts for the revisit section
+      if (state.user) {
+        try {
+          const liked = await api(`/users/${state.user.id}/likes`);
+          state.likedPosts = liked.posts || [];
+        } catch(e) { state.likedPosts = []; }
+      }
+    } catch(e) { toast(e.message, 'error'); }
+    state.discoverLoading = false;
+  }
+
+  // Like a post and update local count
+  async function handleLike(postId, e) {
+    e.stopPropagation();
+    if (!state.user) { goTo('auth'); return; }
+    try {
+      await api(`/posts/${postId}/like`, { method: 'POST' });
+      state.discoverLikes[postId] = (state.discoverLikes[postId] || 0) + 1;
+      render();
+    } catch(e) { /* already liked */ }
+  }
+
+  // Build tag frequency map from all current posts
+  function buildTagCloud() {
+    const counts = {};
+    state.discoverPosts.forEach(p => {
+      (p.tags || []).forEach(t => {
+        const key = t.toLowerCase().trim();
+        if (key) counts[key] = (counts[key] || 0) + 1;
+      });
+    });
+    // Sort by frequency desc, cap at 30 tags
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30);
+  }
+
+  function setTag(tag) {
+    state.discoverTag = state.discoverTag === tag ? null : tag;
+    render();
+  }
+
+  async function gotoTagDiscover(tag) {
+    state.discoverTag = tag;
+    await goTo('discover');
+  }
+
+  function clearTag() { state.discoverTag = null; render(); }
+
+  function setSort(sort) { state.discoverSort = sort; render(); }
+
+  function setFilter(f) { state.discoverFilter = f; render(); }
+
+  function getFilteredSortedPosts() {
+    const typeMap = { trade:'trading', iso:'iso', sell:'selling', buy:'for_purchase' };
+    let posts = [...state.discoverPosts];
+
+    // 1. type filter
+    if (state.discoverFilter !== 'all') {
+      posts = posts.filter(p => p.type === typeMap[state.discoverFilter]);
+    }
+    // 2. tag filter
+    if (state.discoverTag) {
+      const activeTag = state.discoverTag.toLowerCase();
+      posts = posts.filter(p =>
+        (p.tags || []).some(t => t.toLowerCase().trim() === activeTag)
+      );
+    }
+    // 3. search
+    if (state.discoverSearch.trim()) {
+      const q = state.discoverSearch.toLowerCase();
+      posts = posts.filter(p =>
+        (p.title || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
+        (p.username || '').toLowerCase().includes(q) ||
+        (p.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+    }
+    // 4. sort
+    if (state.discoverSort === 'popular') {
+      posts.sort((a, b) => (state.discoverLikes[b.id] || 0) - (state.discoverLikes[a.id] || 0));
+    } else {
+      posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+    return posts;
+  }
+
+  async function loadProfile() {
+    if (!state.profileUserId && !state.user) return;
+    state.profileLoading = true; render();
+    const uid = state.profileUserId || state.user?.id;
+    try {
+      const [uData, pData] = await Promise.all([
+        api(`/users/${uid}`),
+        api(`/users/${uid}/posts`)
+      ]);
+      state.profileUser = uData.user;
+      state.profilePosts = pData.posts || [];
+    } catch(e) { toast(e.message, 'error'); }
+    state.profileLoading = false;
+  }
+
+  async function loadProfileTab(tab) {
+    state.profileTab = tab;
+    const uid = state.profileUserId || state.user?.id;
+    if (tab === 'reviews') {
+      try {
+        const r = await api(`/users/${uid}/reviews`);
+        state.profileReviews = r.reviews || [];
+      } catch(e) {}
+    } else if (tab === 'likes') {
+      try {
+        const r = await api(`/users/${uid}/likes`);
+        state.profilePosts = r.posts || [];
+      } catch(e) {}
+    } else {
+      const type = tab === 'iso' ? 'iso' : tab === 'sell' ? 'selling' : null;
+      const url = type ? `/users/${uid}/posts?type=${type}` : `/users/${uid}/posts`;
+      try {
+        const r = await api(url);
+        state.profilePosts = r.posts || [];
+      } catch(e) {}
+    }
+    render();
+  }
+
+  async function loadPost(postId) {
+    try {
+      const d = await api(`/posts/${postId}`);
+      state.postDetail = d.post;
+      state.postOwner = d.user;
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════
+  //  AUTH ACTIONS
+  // ═══════════════════════════════════════════════
+  async function handleAuth(e) {
+    e.preventDefault();
+    const errEl = document.getElementById('authErr');
+    errEl.style.display = 'none';
+
+    if (state.authTab === 'register') {
+      const username = document.getElementById('regUsername')?.value;
+      const email    = document.getElementById('regEmail')?.value;
+      const password = document.getElementById('regPassword')?.value;
+      try {
+        const d = await api('/auth/register', { method:'POST', body: JSON.stringify({ username, email, password }) });
+        saveToken(d.token); state.user = d.user;
+        toast(`Welcome, ${d.user.username}! 🎉`, 'success');
+        goTo('discover');
+      } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    } else {
+      const email    = document.getElementById('loginEmail')?.value;
+      const password = document.getElementById('loginPassword')?.value;
+      try {
+        const d = await api('/auth/login', { method:'POST', body: JSON.stringify({ email, password }) });
+        saveToken(d.token); state.user = d.user;
+        toast(`Welcome back, ${d.user.username}! 💕`, 'success');
+        goTo('discover');
+      } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    }
+  }
+
+  function switchAuthTab(tab) {
+    state.authTab = tab; render();
+  }
+
+  // ═══════════════════════════════════════════════
+  //  CREATE POST
+  // ═══════════════════════════════════════════════
+  function selectType(type) {
+    state.createDraft.type = type;
+    document.querySelectorAll('.type-option').forEach(el => {
+      el.classList.toggle('selected', el.dataset.type === type);
+    });
+  }
+
+  function handleImagePick(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    state.createDraft.imageFile = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      state.createDraft.imageUrl = ev.target.result;
+      const preview = document.getElementById('uploadPreview');
+      if (preview) { preview.src = ev.target.result; preview.style.display = 'block'; }
+      document.getElementById('uploadHint')?.style && (document.getElementById('uploadHint').style.display = 'none');
+      document.getElementById('uploadIconWrap')?.style && (document.getElementById('uploadIconWrap').style.display = 'none');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function handleCreatePost() {
+    if (!state.user) { goTo('auth'); return; }
+    const desc = document.getElementById('postDesc')?.value?.trim();
+    const tags = document.getElementById('postTags')?.value?.trim();
+    const title = document.getElementById('postTitle')?.value?.trim();
+    if (!desc) { toast('Please add a description', 'error'); return; }
+
+    state.createLoading = true; render();
+    try {
+      let imageUrl = null;
+
+      // Cloudinary upload if we have a file
+      if (state.createDraft.imageFile) {
+        try {
+          const sig = await api('/uploads/image-signature');
+          if (sig.cloud_name && sig.api_key) {
+            const fd = new FormData();
+            fd.append('file', state.createDraft.imageFile);
+            fd.append('api_key', sig.api_key);
+            fd.append('timestamp', sig.timestamp);
+            fd.append('signature', sig.signature);
+            const r = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, { method:'POST', body: fd });
+            const d = await r.json();
+            imageUrl = d.secure_url || null;
+          }
+        } catch(e) { /* upload failed, continue without image */ }
+      }
+
+      const payload = {
+        type: state.createDraft.type,
+        title: title || null,
+        description: desc,
+        tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        image_url: imageUrl
+      };
+
+      const d = await api('/posts', { method:'POST', body: JSON.stringify(payload) });
+      state.createDraft = { type: 'trading', title:'', description:'', tags:'', imageUrl: null, imageFile: null };
+      toast('Post published! 🌸', 'success');
+      goTo('post', { post: d.post, owner: state.user });
+    } catch(e) { toast(e.message, 'error'); }
+    state.createLoading = false;
+  }
+
+  // ═══════════════════════════════════════════════
+  //  FOLLOW
+  // ═══════════════════════════════════════════════
+  async function handleFollow(userId) {
+    if (!state.user) { goTo('auth'); return; }
+    try {
+      await api(`/users/${userId}/follow`, { method:'POST' });
+      toast('Following! 💜', 'success');
+      await loadProfile();
+      render();
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════
+  //  HELPERS
+  // ═══════════════════════════════════════════════
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+
+  function pillFor(type) {
+    const map = { trading:'trade', iso:'iso', selling:'sell', for_purchase:'buy' };
+    const cls = map[type] || 'trade';
+    const label = { trading:'Trade', iso:'ISO', selling:'Sell', for_purchase:'Buy' }[type] || type;
+    return `<span class="pill pill-${cls}">${label}</span>`;
+  }
+
+  function starsFor(n) {
+    if (!n) return '<span class="stars">☆☆☆☆☆</span>';
+    return `<span class="stars">${'★'.repeat(Math.round(n))}${'☆'.repeat(5-Math.round(n))}</span>`;
+  }
+
+  function avatarFor(url, size=40) {
+    if (url) return `<img src="${esc(url)}" alt="">`;
+    return `<svg width="${Math.round(size*.45)}" height="${Math.round(size*.45)}" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`;
+  }
+
+  function noImgSvg() {
+    return `<svg class="no-img-icon" width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="8" y="14" width="48" height="36" rx="6" stroke="#d4b8f9" stroke-width="3"/><circle cx="22" cy="26" r="5" stroke="#f9b8d0" stroke-width="3"/><path d="M8 40l14-12 10 10 8-8 16 10" stroke="#d4b8f9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
+
+
+  // ═══════════════════════════════════════════════
+  //  RENDER FUNCTIONS
+  // ═══════════════════════════════════════════════
+
+  // ── AUTH PAGE ──
+  function renderAuth() {
+    const isLogin = state.authTab === 'login';
+    return `
+    <div class="auth-wrap page-anim">
+      <div class="auth-card">
+        <div class="auth-logo">UTrade<span>Mi</span></div>
+        <div class="auth-tagline">Your Kpop photocard trading community ✨</div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab ${isLogin ? 'active' : ''}" onclick="switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab ${!isLogin ? 'active' : ''}" onclick="switchAuthTab('register')">Join</button>
+        </div>
+
+        <form onsubmit="handleAuth(event)">
+          ${!isLogin ? `
+          <div class="field">
+            <label>Username</label>
+            <input id="regUsername" placeholder="your_username" required minlength="3" maxlength="30">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input id="regEmail" type="email" placeholder="you@email.com" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input id="regPassword" type="password" placeholder="••••••••" required minlength="6">
+          </div>
+          ` : `
+          <div class="field">
+            <label>Email</label>
+            <input id="loginEmail" type="email" placeholder="you@email.com" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input id="loginPassword" type="password" placeholder="••••••••" required>
+          </div>
+          `}
+          <div class="auth-err" id="authErr"></div>
+          <button type="submit" class="auth-submit">${isLogin ? 'Sign In 💕' : 'Create Account 🌸'}</button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px; font-size:13px; color:var(--muted)">
+          ${isLogin ? `Don't have an account? <a href="#" onclick="switchAuthTab('register'); return false;" style="color:var(--pink-deep); font-weight:700">Join UTradeMi</a>`
+                    : `Already a member? <a href="#" onclick="switchAuthTab('login'); return false;" style="color:var(--pink-deep); font-weight:700">Sign in</a>`}
+        </p>
+      </div>
+    </div>`;
+  }
+
+  // ── DISCOVER PAGE ──
+  function renderDiscover() {
+    const posts = getFilteredSortedPosts();
+    const tagCloud = buildTagCloud();
+
+    const typeFilters = [
+      { key:'all',   label:'All' },
+      { key:'trade', label:'🔄 Trading' },
+      { key:'iso',   label:'🔍 ISO' },
+      { key:'sell',  label:'🏷️ Selling' },
+      { key:'buy',   label:'🛒 For Purchase' },
+    ];
+
+    const likedPosts = state.likedPosts || [];
+
+    return `
+    <div class="page page-anim">
+
+      ${likedPosts.length > 0 ? `
+      <!-- REVISIT YOUR LIKES -->
+      <div class="revisit-section">
+        <div class="revisit-header">
+          <div class="revisit-title">Revisit your <span>likes</span></div>
+          <button class="revisit-see-all" onclick="loadProfileTab('likes'); goTo('profile', {userId: state.user?.id})">See all →</button>
+        </div>
+        <div class="revisit-scroll">
+          ${likedPosts.slice(0, 12).map((p, i) => `
+            <div class="revisit-card" style="animation-delay:${i * 0.05}s"
+                 onclick="goTo('post', { postId: '${esc(p.id)}' })">
+              <div class="revisit-card-img">
+                ${p.image_url
+                  ? `<img src="${esc(p.image_url)}" alt="" loading="lazy">`
+                  : `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" opacity=".3"><rect x="3" y="5" width="18" height="14" rx="3" stroke="#d4b8f9" stroke-width="2"/></svg>`
+                }
+                <div class="revisit-card-heart">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#f086b0">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="#f086b0" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="revisit-card-body">
+                <div class="revisit-card-user">@${esc(p.username || 'user')}</div>
+                <div class="revisit-card-desc">${esc(p.title || p.description)}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <div class="discover-header">
+        <div>
+          <div class="discover-title">Discover <span>Photocards</span></div>
+          <div style="font-size:13px; color:var(--muted); margin-top:4px">${posts.length} listing${posts.length !== 1 ? 's' : ''} found</div>
+        </div>
+        ${state.user ? `<button class="btn btn-primary" onclick="goTo('create')">+ New Post</button>` : `<button class="btn btn-primary" onclick="goTo('auth')">Join to Post</button>`}
+      </div>
+
+      <!-- COMBINED TOOLBAR -->
+      <div class="discover-toolbar">
+        <span class="toolbar-label">Type</span>
+        <div class="toolbar-section">
+          ${typeFilters.map(f => `
+            <button class="sort-btn ${state.discoverFilter === f.key ? 'active' : ''}"
+              onclick="setFilter('${f.key}')">
+              ${f.label}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <span class="toolbar-label">Sort</span>
+        <div class="toolbar-section">
+          <button class="sort-btn ${state.discoverSort === 'recent' ? 'active' : ''}" onclick="setSort('recent')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Most Recent
+          </button>
+          <button class="sort-btn ${state.discoverSort === 'popular' ? 'active' : ''}" onclick="setSort('popular')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            Most Popular
+          </button>
+        </div>
+      </div>
+
+      <!-- TAG CLOUD -->
+      ${tagCloud.length > 0 ? `
+      <div class="tag-cloud-wrap">
+        <div class="tag-cloud-header">
+          <div class="tag-cloud-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#b09abf" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="7" cy="7" r="1.5" fill="#b09abf"/>
+            </svg>
+            Browse by Tag
+          </div>
+          ${state.discoverTag ? `<button class="tag-cloud-clear" onclick="clearTag()">✕ Clear tag</button>` : ''}
+        </div>
+        <div class="tag-cloud">
+          ${tagCloud.map(([tag, count]) => `
+            <button class="cloud-tag ${state.discoverTag === tag ? 'active' : ''}"
+              onclick="setTag('${esc(tag)}')">
+              #${esc(tag)}
+              <span class="tag-count">${count}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- ACTIVE TAG BANNER -->
+      ${state.discoverTag ? `
+        <div class="active-tag-banner">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#b48cff" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="7" cy="7" r="1.5" fill="#b48cff"/>
+          </svg>
+          Showing posts tagged <strong style="color:var(--lav-deep)">#${esc(state.discoverTag)}</strong>
+          — ${posts.length} result${posts.length !== 1 ? 's' : ''}
+          <button onclick="clearTag()">✕</button>
+        </div>
+      ` : ''}
+
+      <!-- POSTS GRID -->
+      ${state.discoverLoading ? `<div class="spinner-wrap"><div class="spinner"></div></div>` : `
+      <div class="posts-grid">
+        ${posts.length === 0 ? `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="#d4b8f9" stroke-width="2"/><path d="M8 10h8M8 14h5" stroke="#f9b8d0" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="font-weight:700; color:var(--ink2)">No posts found</div>
+            <div style="font-size:13px">${state.discoverTag ? `No listings tagged #${esc(state.discoverTag)}` : 'Try adjusting your filters 🌸'}</div>
+            ${state.discoverTag ? `<button class="btn btn-ghost" onclick="clearTag()">Clear tag filter</button>` : ''}
+          </div>
+        ` : posts.map((p, i) => {
+          const likes = state.discoverLikes[p.id] || 0;
+          const tags = (p.tags || []).slice(0, 3);
+          return `
+          <div class="post-tile" style="animation-delay:${i * 0.04}s"
+               onclick="goTo('post', { postId: '${esc(p.id)}' })">
+            <div class="post-tile-img">
+              ${p.image_url
+                ? `<img src="${esc(p.image_url)}" alt="${esc(p.title || p.description)}" loading="lazy">`
+                : noImgSvg()
+              }
+            </div>
+            <div class="post-tile-body">
+              <div class="post-tile-user">@${esc(p.username || 'user')}</div>
+              <div class="post-tile-desc">${esc(p.title || p.description)}</div>
+              ${tags.length ? `
+                <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px;">
+                  ${tags.map(t => `
+                    <span class="inline-tag" onclick="event.stopPropagation(); setTag('${esc(t.toLowerCase().trim())}')">#${esc(t)}</span>
+                  `).join('')}
+                </div>
+              ` : ''}
+              <div class="post-tile-footer">
+                ${pillFor(p.type)}
+                <div class="post-like-badge">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="${likes > 0 ? '#f9b8d0' : 'none'}">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                      stroke="${likes > 0 ? '#f086b0' : '#b09abf'}" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  ${likes}
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      `}
+    </div>`;
+  }
+
+  // ── POST DETAIL PAGE ──
+  function renderPost() {
+    const p = state.postDetail;
+    const owner = state.postOwner;
+    if (!p) return `<div class="page"><div class="spinner-wrap"><div class="spinner"></div></div></div>`;
+
+    const isOwn = state.user && owner && state.user.id === owner.id;
+
+    return `
+    <div class="page page-anim">
+      <button class="btn btn-ghost" onclick="goTo(state.prevPage || 'discover')" style="margin-bottom:20px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+
+      <div class="post-detail-layout">
+        <div class="post-img-card">
+          ${p.image_url
+            ? `<img class="post-img" src="${esc(p.image_url)}" alt="${esc(p.title || '')}">`
+            : `<div class="post-img-placeholder">${noImgSvg()}</div>`}
+        </div>
+
+        <div class="post-info-card">
+          <div class="post-info-header">
+            <div class="post-owner" onclick="goTo('profile', { userId: '${esc(owner?.id || '')}' })">
+              <div class="post-owner-avatar">${avatarFor(owner?.avatar_url)}</div>
+              <div>
+                <div class="post-owner-name">@${esc(owner?.username || 'user')}</div>
+                <div class="post-owner-rating">
+                  ${owner?.avg_rating ? `${starsFor(owner.avg_rating)} ${owner.avg_rating.toFixed(1)}` : 'No reviews yet'}
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              ${pillFor(p.type)}
+            </div>
+          </div>
+
+          <div class="post-info-body">
+            ${p.title ? `<div style="font-family:var(--font-serif); font-size:22px; margin-bottom:4px">${esc(p.title)}</div>` : ''}
+            <div class="post-desc">${esc(p.description)}</div>
+
+            ${p.tags?.length ? `
+              <div class="post-tags">
+                ${p.tags.map(t => `<span class="inline-tag" onclick="gotoTagDiscover('${esc(t.toLowerCase().trim())}')">#${esc(t)}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            <div class="divider"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              ${!isOwn ? `
+                <button class="btn btn-primary" onclick="startMsgFromPost()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 6h14v10H8l-3 3V6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                  Message
+                </button>
+                <button class="btn btn-ghost" onclick="state.user ? goTo('review',{user:state.postOwner}) : goTo('auth')">Leave Review</button>
+                <button class="btn btn-ghost" onclick="handleLike('${esc(p.id)}', event)" style="display:flex;align-items:center;gap:5px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                      stroke="#f086b0" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  Like
+                </button>
+              ` : `
+                <button class="btn btn-ghost" onclick="goTo('create')">Edit Post</button>
+              `}
+              <button class="btn btn-ghost" onclick="goTo('profile', { userId: '${esc(owner?.id || '')}' })">View Profile</button>
+            </div>
+
+            <div style="margin-top:16px; font-size:11px; color:var(--muted)">
+              Posted ${p.created_at ? new Date(p.created_at).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── PROFILE PAGE ──
+  function renderProfile() {
+    const u = state.profileUser;
+    const isOwn = state.user && u && state.user.id === u.id;
+
+    if (state.profileLoading) return `<div class="page"><div class="spinner-wrap"><div class="spinner"></div></div></div>`;
+    if (!u) return `<div class="page"><div style="color:var(--muted); text-align:center; padding:60px">User not found</div></div>`;
+
+    const tabs = [
+      { key:'trading', label:'🔄 Trading' },
+      { key:'iso',     label:'🔍 ISO' },
+      { key:'sell',    label:'🏷️ Selling' },
+      { key:'likes',   label:'💜 Likes' },
+      { key:'reviews', label:'⭐ Reviews' },
+    ];
+
+    let tabContent = '';
+    if (state.profileTab === 'reviews') {
+      if (!state.profileReviews.length) {
+        tabContent = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke="#f9b8d0" stroke-width="2" stroke-linejoin="round"/></svg></div><div style="font-weight:700; color:var(--ink2)">No reviews yet</div></div>`;
+      } else {
+        tabContent = `<div style="display:flex; flex-direction:column; gap:14px;">
+          ${state.profileReviews.map((r,i) => `
+            <div class="review-card" style="animation-delay:${i*.04}s">
+              <div class="review-top">
+                <span class="reviewer-name">@${esc(r.reviewer_username || 'user')}</span>
+                ${starsFor(r.rating)}
+              </div>
+              ${r.review_text ? `<div class="review-text">${esc(r.review_text)}</div>` : ''}
+              ${r.shipping_time ? `<div class="review-shipping">Shipping: ${esc(r.shipping_time)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>`;
+      }
+    } else {
+      const posts = state.profilePosts.filter(p => {
+        if (state.profileTab === 'trading') return p.type === 'trading';
+        if (state.profileTab === 'iso') return p.type === 'iso';
+        if (state.profileTab === 'sell') return p.type === 'selling';
+        return true; // likes — all
+      });
+      if (!posts.length) {
+        tabContent = `<div class="empty-state" style="grid-column:1/-1; padding:40px 0"><div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="#d4b8f9" stroke-width="2"/></svg></div><div style="font-weight:700; color:var(--ink2)">No posts here</div></div>`;
+      } else {
+        tabContent = `<div class="profile-grid">
+          ${posts.map((p,i) => `
+            <div class="post-tile" style="animation-delay:${i*.04}s" onclick="goTo('post', { postId: '${esc(p.id)}' })">
+              <div class="post-tile-img" style="aspect-ratio:3/4">
+                ${p.image_url ? `<img src="${esc(p.image_url)}" alt="" loading="lazy">` : noImgSvg()}
+              </div>
+              <div class="post-tile-body" style="padding:10px 12px 12px">
+                <div class="post-tile-desc" style="font-size:12px">${esc(p.title || p.description)}</div>
+                ${pillFor(p.type)}
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+    }
+
+    return `
+    <div class="page-anim">
+      <div class="card" style="overflow:hidden; margin-bottom:0; border-radius: var(--radius-xl);">
+        <div class="profile-banner"></div>
+        <div class="profile-body">
+          <div class="profile-top">
+            <div class="profile-avatar">${avatarFor(u.avatar_url, 72)}</div>
+            <div class="profile-info">
+              <div class="profile-name">${esc(u.username)}</div>
+              <div class="profile-stats" style="margin-bottom:6px">
+                <span><strong>${u.followers_count || 0}</strong> followers</span>
+                <span><strong>${u.following_count || 0}</strong> following</span>
+              </div>
+              ${u.bio ? `<div class="profile-bio">${esc(u.bio)}</div>` : ''}
+              <div class="profile-stat-chips">
+                ${u.avg_rating ? `
+                  <div class="profile-stat-chip chip-rating">
+                    ${starsFor(u.avg_rating)}
+                    <span class="chip-val">${u.avg_rating.toFixed(1)}</span>
+                    <span>avg rating</span>
+                  </div>` : ''}
+                ${u.avg_shipping_time ? `
+                  <div class="profile-stat-chip chip-ship">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                      <rect x="2" y="7" width="16" height="13" rx="2" stroke="#b09abf" stroke-width="2"/>
+                      <path d="M18 10h2l2 4v3h-4" stroke="#b09abf" stroke-width="2" stroke-linejoin="round"/>
+                      <circle cx="7" cy="20" r="2" stroke="#b09abf" stroke-width="2"/>
+                      <circle cx="17" cy="20" r="2" stroke="#b09abf" stroke-width="2"/>
+                    </svg>
+                    <span class="chip-val">${esc(u.avg_shipping_time)}</span>
+                    <span>avg shipping</span>
+                  </div>` : ''}
+              </div>
+            </div>
+            <div class="profile-actions">
+              ${isOwn
+                ? `<button class="btn btn-ghost" onclick="goTo('editprofile')">Edit Profile</button>`
+                : `<div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn btn-follow" onclick="handleFollow('${esc(u.id)}')">+ Follow</button>
+                    <button class="btn btn-ghost" onclick="startMsgFromProfile()">💬 Message</button>
+                    <button class="btn btn-ghost" onclick="goTo('review',{user:state.profileUser})">⭐ Review</button>
+                   </div>`
+              }
+            </div>
+          </div>
+
+          <div class="tabs">
+            ${tabs.map(t => `
+              <button class="tab-btn ${state.profileTab === t.key ? 'active' : ''}"
+                onclick="loadProfileTab('${t.key}')">
+                ${t.label}
+              </button>
+            `).join('')}
+          </div>
+
+          ${tabContent}
+        </div>
+      </div>
+    </div>
+    <div class="page" style="padding-top:0"></div>`;
+  }
+
+  // ── CREATE POST PAGE ──
+  function renderCreate() {
+    if (!state.user) {
+      return `<div class="page page-anim" style="text-align:center; padding-top:60px">
+        <div style="font-family:var(--font-serif); font-size:24px; margin-bottom:12px">Sign in to post 🌸</div>
+        <button class="btn btn-primary" onclick="goTo('auth')">Sign In</button>
+      </div>`;
+    }
+
+    const types = [
+      { key:'trading',     label:'Trading',     sub:'Swap cards with others' },
+      { key:'iso',         label:'ISO',         sub:'In Search Of — looking for' },
+      { key:'selling',     label:'Selling',     sub:'Sell your photocards' },
+      { key:'for_purchase',label:'For Purchase', sub:'Want to buy a specific card' },
+    ];
+
+    return `
+    <div class="page page-anim">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px">
+        <div>
+          <div style="font-family:var(--font-serif); font-size:28px">New Listing</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:2px">Share your photocards with the community</div>
+        </div>
+        <button class="btn btn-ghost" onclick="goTo('discover')">Cancel</button>
+      </div>
+
+      <div class="create-layout">
+        <!-- Image upload -->
+        <div>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" accept="image/*" onchange="handleImagePick(event)">
+            <img id="uploadPreview" style="display:none" alt="">
+            <div id="uploadIconWrap">
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <polyline points="17 8 12 3 7 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="3" x2="12" y2="15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="upload-hint" id="uploadHint">Tap to upload photo</div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="create-form">
+
+          <div class="form-group">
+            <div class="form-label">Post Type</div>
+            <div class="type-grid">
+              ${types.map(t => `
+                <label class="type-option ${state.createDraft.type === t.key ? 'selected' : ''}" data-type="${t.key}" onclick="selectType('${t.key}')">
+                  <div class="type-dot"></div>
+                  <div>
+                    <div class="type-label">${t.label}</div>
+                    <div class="type-sub">${t.sub}</div>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Title <span style="font-weight:400; text-transform:none; color:var(--muted)">(optional)</span></div>
+            <input class="form-input" id="postTitle" placeholder="e.g. Jimin FACE PC — Weverse ver." maxlength="120" value="${esc(state.createDraft.title)}">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Description *</div>
+            <textarea class="form-textarea" id="postDesc" placeholder="Describe your photocard — condition, version, what you're looking for in return…" maxlength="2000">${esc(state.createDraft.description)}</textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Tags <span style="font-weight:400; text-transform:none; color:var(--muted)">(comma separated)</span></div>
+            <input class="form-input" id="postTags" placeholder="bts, jimin, face, weverse" value="${esc(state.createDraft.tags)}">
+          </div>
+
+          <div class="form-actions">
+            ${state.createLoading
+              ? `<button class="btn btn-primary" disabled><div class="spinner" style="width:16px;height:16px;border-width:2px;margin-right:6px"></div>Posting…</button>`
+              : `<button class="btn btn-primary" onclick="handleCreatePost()">Publish Listing 🌸</button>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ─── EDIT PROFILE (simple) ───
+  function renderEditProfile() {
+    const u = state.user;
+    return `
+    <div class="page page-anim" style="max-width:520px">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:24px">
+        <button class="btn btn-ghost" onclick="goTo('profile')">← Back</button>
+        <div style="font-family:var(--font-serif); font-size:24px">Edit Profile</div>
+      </div>
+      <div class="card" style="padding:28px">
+        <div class="form-group">
+          <div class="form-label">Bio</div>
+          <textarea class="form-textarea" id="editBio" placeholder="Tell the community about yourself 🌸">${esc(u?.bio || '')}</textarea>
+        </div>
+        <div class="form-group" style="margin-top:14px">
+          <div class="form-label">Avatar URL</div>
+          <input class="form-input" id="editAvatar" placeholder="https://…" value="${esc(u?.avatar_url || '')}">
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end">
+          <button class="btn btn-ghost" onclick="goTo('profile')">Cancel</button>
+          <button class="btn btn-primary" onclick="handleSaveProfile()">Save Changes</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function startMsgFromPost() {
+    if (!state.user) { goTo('auth'); return; }
+    const owner = state.postOwner;
+    if (!owner) return;
+    goTo('messages', {
+      userId: owner.id,
+      username: owner.username,
+      avatarUrl: owner.avatar_url || null,
+      postContext: state.postDetail
+    });
+  }
+
+  // Wire Message from profile
+  function startMsgFromProfile() {
+    if (!state.user) { goTo('auth'); return; }
+    const u = state.profileUser;
+    if (!u || u.id === state.user.id) return;
+    goTo('messages', { userId: u.id, username: u.username, avatarUrl: u.avatar_url || null });
+  }
+
+  async function handleSaveProfile() {
+    const bio = document.getElementById('editBio')?.value;
+    const avatar_url = document.getElementById('editAvatar')?.value;
+    try {
+      const d = await api('/users/me', { method:'PATCH', body: JSON.stringify({ bio, avatar_url: avatar_url || null }) });
+      state.user = d.user;
+      toast('Profile updated! 💕', 'success');
+      goTo('profile', { userId: state.user.id });
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════
+  //  MESSAGING LOGIC
+  // ═══════════════════════════════════════════════
+  async function openMsgThread(userId, username, avatarUrl, postContext) {
+    const existing = state.msgThreads.find(t => t.userId === userId);
+    if (!existing) {
+      state.msgThreads.unshift({ userId, username, avatarUrl, lastMsg: '', lastTime: '', unread: false, postContext, tradeStatus: null });
+    }
+    state.msgActiveThread = userId;
+    if (!state.msgMessages[userId]) state.msgMessages[userId] = [];
+
+    // Inject post context card at top if starting from a post
+    const hasCtx = state.msgMessages[userId].some(m => m.type === 'post_context');
+    if (postContext && !hasCtx) {
+      state.msgMessages[userId].unshift({
+        id: 'ctx_' + Date.now(), from: '__system__', type: 'post_context',
+        post: postContext, time: new Date().toISOString()
+      });
+    }
+    state.msgPostContext = null;
+
+    // Load real messages from backend
+    await loadMessages(userId);
+  }
+
+  async function loadMessages(userId) {
+    try {
+      const data = await api(`/messages/${userId}`);
+      const backendMsgs = (data.messages || []).map(m => ({
+        id: m.id,
+        from: m.sender_id,
+        text: m.text,
+        time: m.created_at,
+        type: 'text'
+      }));
+      // Merge: keep system/context messages, replace text messages with backend ones
+      const systemMsgs = (state.msgMessages[userId] || []).filter(m => m.type !== 'text');
+      state.msgMessages[userId] = [...systemMsgs, ...backendMsgs]
+        .sort((a, b) => new Date(a.time) - new Date(b.time));
+      // Update thread preview
+      const thread = state.msgThreads.find(t => t.userId === userId);
+      if (thread && backendMsgs.length) {
+        const last = backendMsgs[backendMsgs.length - 1];
+        thread.lastMsg = last.text;
+        thread.lastTime = fmtTime(last.time);
+      }
+      render();
+      setTimeout(() => {
+        const body = document.getElementById('msgBody');
+        if (body) body.scrollTop = body.scrollHeight;
+      }, 50);
+    } catch(e) {
+      // Backend route may not exist yet — fall back to client-side only
+      console.warn('Messages API not available, using local store');
+    }
+  }
+
+  async function loadAllThreads() {
+    try {
+      const data = await api('/messages/threads');
+      (data.threads || []).forEach(t => {
+        const existing = state.msgThreads.find(th => th.userId === t.other_user_id);
+        if (!existing) {
+          state.msgThreads.push({
+            userId: t.other_user_id,
+            username: t.other_username,
+            avatarUrl: t.other_avatar || null,
+            lastMsg: t.last_message,
+            lastTime: fmtTime(t.last_time),
+            unread: t.unread || false,
+            postContext: null
+          });
+        }
+      });
+      render();
+    } catch(e) {
+      console.warn('Threads API not available');
+    }
+  }
+
+  async function sendMessage() {
+    const uid = state.msgActiveThread;
+    if (!uid || !state.user) return;
+    const input = document.getElementById('msgInput');
+    const text = (input?.value || '').trim();
+    if (!text) return;
+    input.value = '';
+
+    // Optimistic local add
+    if (!state.msgMessages[uid]) state.msgMessages[uid] = [];
+    const tempMsg = { id: 'tmp_' + Date.now(), from: state.user.id, text, time: new Date().toISOString(), type: 'text' };
+    state.msgMessages[uid].push(tempMsg);
+    const thread = state.msgThreads.find(t => t.userId === uid);
+    if (thread) { thread.lastMsg = text; thread.lastTime = 'now'; }
+    render();
+    setTimeout(() => { const b = document.getElementById('msgBody'); if (b) b.scrollTop = b.scrollHeight; }, 50);
+
+    // Send to backend
+    try {
+      await api('/messages', { method: 'POST', body: JSON.stringify({ recipient_id: uid, text }) });
+      // Reload to get real message id + any new messages from other side
+      await loadMessages(uid);
+    } catch(e) {
+      console.warn('Message send failed, keeping local copy');
+    }
+
+    // Safety check after 3 real messages
+    const textMsgs = state.msgMessages[uid].filter(m => m.type === 'text' && m.from === state.user.id);
+    if (textMsgs.length === 3 && !state.msgMessages[uid].some(m => m.type === 'safety_check')) {
+      setTimeout(() => {
+        state.msgMessages[uid].push({ id: 'safety_' + Date.now(), from: '__system__', type: 'safety_check', time: new Date().toISOString() });
+        render();
+      }, 800);
+    }
+  }
+
+  function acceptTrade() {
+    const uid = state.msgActiveThread;
+    if (!uid) return;
+    const thread = state.msgThreads.find(t => t.userId === uid);
+    if (thread) thread.tradeStatus = 'accepted';
+    // Inject system message into chat
+    if (!state.msgMessages[uid]) state.msgMessages[uid] = [];
+    state.msgMessages[uid].push({
+      id: 'trade_acc_' + Date.now(), from: '__system__', type: 'system',
+      text: '🎉 Trade accepted! Once you have both shipped, confirm below.',
+      time: new Date().toISOString()
+    });
+    // Schedule shipping check-in after 2s (simulates later trigger)
+    setTimeout(() => {
+      if (state.msgMessages[uid]) {
+        state.msgMessages[uid].push({
+          id: 'safety_' + Date.now(), from: '__system__', type: 'safety_check',
+          time: new Date().toISOString()
+        });
+        render();
+        setTimeout(() => { const b = document.getElementById('msgBody'); if (b) b.scrollTop = b.scrollHeight; }, 50);
+      }
+    }, 2000);
+    render();
+    toast('Trade accepted! 🌸', 'success');
+  }
+
+  function declineTrade() {
+    const uid = state.msgActiveThread;
+    if (!uid) return;
+    const thread = state.msgThreads.find(t => t.userId === uid);
+    if (thread) thread.tradeStatus = 'declined';
+    if (!state.msgMessages[uid]) state.msgMessages[uid] = [];
+    state.msgMessages[uid].push({
+      id: 'trade_dec_' + Date.now(), from: '__system__', type: 'system',
+      text: '❌ Trade declined. You can keep chatting to negotiate.',
+      time: new Date().toISOString()
+    });
+    render();
+  }
+
+  function handleSafetyResponse(outcome) {
+    const uid = state.msgActiveThread;
+    if (!uid) return;
+    if (outcome === 'yes') {
+      state.msgMessages[uid].push({
+        id: 'sys_' + Date.now(), from: '__system__', type: 'system',
+        text: '🎉 Awesome! Your trade is confirmed. Please leave a review for your trader.',
+        time: new Date().toISOString()
+      });
+      // add review prompt
+      state.msgMessages[uid].push({
+        id: 'rev_' + Date.now(), from: '__system__', type: 'review_prompt',
+        forUserId: uid, time: new Date().toISOString()
+      });
+    } else {
+      state.msgMessages[uid].push({
+        id: 'sys_' + Date.now(), from: '__system__', type: 'system',
+        text: "😔 Sorry to hear that. We'll check in again soon. Make sure to keep your chat records.",
+        time: new Date().toISOString()
+      });
+    }
+    // remove the safety check card
+    state.msgMessages[uid] = state.msgMessages[uid].filter(m => m.type !== 'safety_check');
+    render();
+    setTimeout(() => {
+      const body = document.getElementById('msgBody');
+      if (body) body.scrollTop = body.scrollHeight;
+    }, 50);
+  }
+
+  async function selectThread(userId) {
+    state.msgActiveThread = userId;
+    const thread = state.msgThreads.find(t => t.userId === userId);
+    if (thread) thread.unread = false;
+    render();
+    await loadMessages(userId);
+    setTimeout(() => {
+      const body = document.getElementById('msgBody');
+      if (body) body.scrollTop = body.scrollHeight;
+    }, 50);
+    // Poll for new messages every 5s while this thread is open
+    clearInterval(window._msgPoll);
+    window._msgPoll = setInterval(async () => {
+      if (state.page === 'messages' && state.msgActiveThread === userId) {
+        await loadMessages(userId);
+      } else {
+        clearInterval(window._msgPoll);
+      }
+    }, 5000);
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff/60000) + 'm';
+    if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+
+  // ═══════════════════════════════════════════════
+  //  INVENTORY LOGIC
+  // ═══════════════════════════════════════════════
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ═══════════════════════════════════════════════
+  //  RENDER: MESSAGES
+  // ═══════════════════════════════════════════════
+  function renderMessages() {
+    if (!state.user) {
+      return `<div class="page page-anim" style="text-align:center;padding-top:60px">
+        <div style="font-family:var(--font-serif);font-size:24px;margin-bottom:12px">Sign in to message 💬</div>
+        <button class="btn btn-primary" onclick="goTo('auth')">Sign In</button>
+      </div>`;
+    }
+
+    const threads = state.msgThreads;
+    const activeUid = state.msgActiveThread;
+    const messages = activeUid ? (state.msgMessages[activeUid] || []) : [];
+    const activeThread = threads.find(t => t.userId === activeUid);
+
+    const bubbleAvatarHtml = (url) => url
+      ? `<img src="${esc(url)}" alt="">`
+      : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    const threadAvatarHtml = (url) => url
+      ? `<img src="${esc(url)}" alt="">`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    const rightAvatarHtml = (url) => url
+      ? `<img src="${esc(url)}" alt="">`
+      : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    return `
+    <div class="page page-anim" style="padding-bottom:0">
+      <div class="msg-layout">
+
+        <!-- ── LEFT: THREAD LIST ── -->
+        <div class="msg-sidebar">
+          <div class="msg-sidebar-head">
+            <div class="msg-sidebar-title">Messages</div>
+            <button class="sort-btn" style="padding:5px 10px;font-size:11px" onclick="render()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Refresh
+            </button>
+          </div>
+
+          <div class="msg-thread-list">
+            ${threads.length === 0
+              ? `<div style="padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7">
+                   No conversations yet.<br>Message someone from a post or their profile 💌
+                 </div>`
+              : threads.map(t => `
+                <div class="msg-thread ${activeUid === t.userId ? 'active' : ''}"
+                     onclick="selectThread('${esc(t.userId)}')">
+                  <div class="msg-thread-avatar">
+                    ${threadAvatarHtml(t.avatarUrl)}
+                  </div>
+                  <div class="msg-thread-info">
+                    <div class="msg-thread-name" style="display:flex;align-items:center;gap:5px">
+                      @${esc(t.username)}
+                      ${t.unread ? '<div class="msg-unread-dot"></div>' : ''}
+                    </div>
+                    <div class="msg-thread-preview">${esc(t.lastMsg || 'Start a conversation…')}</div>
+                    <div class="msg-thread-time">${t.lastTime || ''}</div>
+                  </div>
+                  ${t.postContext && t.postContext.image_url
+                    ? `<div style="width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)">
+                         <img src="${esc(t.postContext.image_url)}" style="width:100%;height:100%;object-fit:cover" alt="">
+                       </div>`
+                    : ''}
+                </div>
+              `).join('')
+            }
+          </div>
+        </div>
+
+        <!-- ── CENTRE: CHAT ── -->
+        <div class="msg-chat">
+          ${!activeUid ? `
+            <div class="msg-empty">
+              <div class="msg-empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 6h14v10H8l-3 3V6z" stroke="#d4b8f9" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div style="font-weight:800;color:var(--ink2)">Select a conversation</div>
+              <div style="font-size:13px">Or start one from a post or profile 💌</div>
+            </div>
+          ` : `
+            <!-- Chat header -->
+            <div class="msg-chat-head">
+              <div class="msg-thread-avatar" style="width:36px;height:36px">
+                ${threadAvatarHtml(activeThread ? activeThread.avatarUrl : null)}
+              </div>
+              <div class="msg-chat-head-info">
+                <div class="msg-chat-head-name">@${esc(activeThread ? activeThread.username : '')}</div>
+                <div class="msg-chat-head-sub">Kpop photocard trader</div>
+              </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="msg-body" id="msgBody">
+              ${messages.map(m => {
+                if (m.type === 'post_context') {
+                  const p = m.post;
+                  return `
+                    <div class="msg-system">About this listing</div>
+                    <div class="msg-post-ctx" onclick="goTo('post',{postId:'${esc(p.id || '')}'})" style="align-self:center">
+                      <div class="msg-post-ctx-img">${p.image_url ? `<img src="${esc(p.image_url)}" alt="">` : ''}</div>
+                      <div class="msg-post-ctx-info">
+                        <div class="msg-post-ctx-label">${esc(p.type || '')}</div>
+                        <div class="msg-post-ctx-title">${esc(p.title || p.description || 'View post')}</div>
+                      </div>
+                    </div>`;
+                }
+                if (m.type === 'system') {
+                  return `<div class="msg-system">${esc(m.text)}</div>`;
+                }
+                if (m.type === 'safety_check') {
+                  return `
+                    <div class="msg-safety-card">
+                      <div class="msg-safety-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke="#b48cff" stroke-width="2" stroke-linejoin="round" fill="rgba(180,140,255,.2)"/></svg>
+                        Trade Check-In
+                      </div>
+                      <div style="color:var(--ink2);font-size:13px">Did your trade go well? Did you receive your card as expected?</div>
+                      <div class="msg-safety-actions">
+                        <button class="btn btn-primary" style="font-size:12px" onclick="handleSafetyResponse('yes')">✅ Yes, all good!</button>
+                        <button class="btn btn-ghost" style="font-size:12px" onclick="handleSafetyResponse('no')">⚠️ There was an issue</button>
+                      </div>
+                    </div>`;
+                }
+                if (m.type === 'review_prompt') {
+                  return `
+                    <div class="msg-safety-card" style="text-align:center">
+                      <div style="font-size:20px;margin-bottom:6px">⭐</div>
+                      <div style="font-weight:800;margin-bottom:4px">Leave a Review</div>
+                      <div style="color:var(--ink2);font-size:12px;margin-bottom:10px">Help the community know this is a great trader!</div>
+                      <button class="btn btn-primary" style="font-size:12px" onclick="goTo('review',{userId:'${esc(activeUid)}'})">Write a Review</button>
+                    </div>`;
+                }
+                const isMe = m.from === state.user.id;
+                return `
+                  <div class="msg-bubble-wrap ${isMe ? 'me' : ''}">
+                    ${!isMe ? `<div class="bubble-avatar">${bubbleAvatarHtml(activeThread ? activeThread.avatarUrl : null)}</div>` : ''}
+                    <div>
+                      <div class="msg-bubble">${esc(m.text)}</div>
+                      <div class="bubble-time">${fmtTime(m.time)}</div>
+                    </div>
+                    ${isMe ? `<div class="bubble-avatar">${bubbleAvatarHtml(state.user.avatar_url)}</div>` : ''}
+                  </div>`;
+              }).join('')}
+            </div>
+
+            <!-- Input -->
+            <div class="msg-input-bar">
+              <input class="msg-input" id="msgInput" placeholder="Type your message…"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" />
+              <button class="msg-send-btn" onclick="sendMessage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          `}
+        </div>
+
+        <!-- ── RIGHT: INFO PANEL ── -->
+        <div class="msg-right-panel">
+          ${!activeUid
+            ? `<div class="msg-right-section" style="text-align:center;color:var(--muted);font-size:12px;padding:28px 16px;line-height:1.6">
+                 Select a conversation<br>to see details
+               </div>`
+            : `
+              <!-- Safety notice -->
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+                <div class="msg-safety-banner">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#b09abf" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  Keep it on UTradeMi. Never share personal info or arrange trades outside the platform.
+                </div>
+              </div>
+
+              <!-- Trader profile -->
+              <div class="msg-right-section">
+                <div class="msg-right-user">
+                  <div class="msg-right-avatar">
+                    ${rightAvatarHtml(activeThread ? activeThread.avatarUrl : null)}
+                  </div>
+                  <div class="msg-right-username" onclick="goTo('profile',{userId:'${esc(activeUid)}'})">
+                    @${esc(activeThread ? activeThread.username : '')}
+                  </div>
+                  <div class="msg-right-meta">Kpop photocard trader</div>
+                </div>
+              </div>
+
+              <!-- Item image + info (show if postContext available) -->
+              ${activeThread && activeThread.postContext ? `
+                <div class="msg-right-section">
+                  <div class="msg-right-label">Item Being Discussed</div>
+                  <div class="msg-item-img-card" onclick="goTo('post',{postId:'${esc(activeThread.postContext.id || '')}' })">
+                    ${activeThread.postContext.image_url
+                      ? `<img src="${esc(activeThread.postContext.image_url)}" alt="">`
+                      : `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" opacity=".3">
+                           <rect x="3" y="5" width="18" height="14" rx="3" stroke="#d4b8f9" stroke-width="2"/>
+                           <circle cx="9" cy="10" r="2" stroke="#f9b8d0" stroke-width="1.5"/>
+                         </svg>`
+                    }
+                  </div>
+                  <div style="font-size:13px;font-weight:800;margin-bottom:4px;line-height:1.4">
+                    ${esc(activeThread.postContext.title || activeThread.postContext.description || 'View listing')}
+                  </div>
+                  <div style="margin-bottom:12px">${pillFor(activeThread.postContext.type || 'trading')}</div>
+                </div>
+              ` : ''}
+
+              <!-- Trade offer buttons — always visible when there's an active conversation -->
+              <div class="msg-right-section">
+                <div class="msg-right-label" style="margin-bottom:10px">Trade</div>
+                ${(() => {
+                  const tradeStatus = activeThread ? activeThread.tradeStatus : null;
+                  if (tradeStatus === 'accepted') {
+                    return `
+                      <div class="trade-status-badge trade-status-accepted" style="margin-bottom:8px">✅ Trade Accepted</div>
+                      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:4px">Shipping check-in will appear in chat</div>`;
+                  }
+                  if (tradeStatus === 'declined') {
+                    return `
+                      <div class="trade-status-badge trade-status-declined" style="margin-bottom:8px">❌ Trade Declined</div>
+                      <button class="trade-accept-btn" style="margin-top:8px" onclick="acceptTrade()">Reconsider → Accept</button>`;
+                  }
+                  return `
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                      <button class="trade-accept-btn" onclick="acceptTrade()">✅ Accept Trade</button>
+                      <button class="trade-decline-btn" onclick="declineTrade()">✕ Decline</button>
+                    </div>
+                    <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5">
+                      Accepting will trigger a shipping check-in once both sides have confirmed
+                    </div>`;
+                })()}
+              </div>
+
+              <!-- Profile actions -->
+              <div class="msg-right-section" style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-primary" style="width:100%;justify-content:center"
+                  onclick="goTo('profile',{userId:'${esc(activeUid)}'})">View Profile</button>
+                <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:12px"
+                  onclick="goTo('review',{userId:'${esc(activeUid)}'})">Leave a Review</button>
+              </div>
+            `
+          }
+        </div>
+
+      </div>
+    </div>`;
+  }
+
+
+
+  // ═══════════════════════════════════════════════
+  //  RENDER: REVIEW PAGE
+  // ═══════════════════════════════════════════════
+  function renderReview() {
+    if (!state.user) {
+      return `<div class="page page-anim" style="text-align:center;padding-top:60px">
+        <div style="font-family:var(--font-serif);font-size:22px;margin-bottom:12px">Sign in to leave a review</div>
+        <button class="btn btn-primary" onclick="goTo('auth')">Sign In</button>
+      </div>`;
+    }
+
+    const target = state.reviewTargetUser;
+    if (!target) {
+      return `<div class="page page-anim" style="text-align:center;padding-top:60px;color:var(--muted)">
+        No user selected. <button class="btn btn-ghost" style="margin-top:12px" onclick="goTo('discover')">Back to Discover</button>
+      </div>`;
+    }
+
+    const ratingLabels = ['', 'Terrible 😞', 'Poor 😕', 'Okay 😐', 'Good 😊', 'Amazing! 🌸'];
+
+    return `
+    <div class="page page-anim">
+      <div class="review-page">
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+          <button class="btn btn-ghost" onclick="goTo(state.prevPage||'discover')">← Back</button>
+          <div style="font-family:var(--font-serif);font-size:26px">Leave a Review</div>
+        </div>
+
+        <!-- Who you're reviewing -->
+        <div class="review-user-card">
+          <div class="review-user-avatar">
+            ${target.avatar_url
+              ? `<img src="${esc(target.avatar_url)}" alt="">`
+              : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#b09abf" stroke-width="2"/><path d="M4.5 20c2-5 13-5 15 0" stroke="#b09abf" stroke-width="2" stroke-linecap="round"/></svg>`
+            }
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:16px">@${esc(target.username)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">
+              ${target.avg_rating ? `${starsFor(target.avg_rating)} ${target.avg_rating.toFixed(1)} avg rating` : 'No reviews yet'}
+            </div>
+          </div>
+          <button class="btn btn-ghost" style="margin-left:auto;font-size:12px"
+            onclick="goTo('profile',{userId:'${esc(target.id)}'})">View Profile</button>
+        </div>
+
+        <div class="card" style="padding:28px">
+
+          <!-- Star rating -->
+          <div style="text-align:center;margin-bottom:6px">
+            <div style="font-size:13px;font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px">
+              Overall Rating *
+            </div>
+          </div>
+          <div class="star-row" id="starRow">
+            ${[1,2,3,4,5].map(n => `
+              <button class="star-btn ${n <= state.reviewRating ? 'lit' : ''}"
+                id="star${n}"
+                onmouseover="hoverStar(${n})"
+                onmouseout="unhoverStar()"
+                onclick="setStar(${n})">★</button>
+            `).join('')}
+          </div>
+          <div class="rating-label" id="ratingLabel">
+            ${ratingLabels[state.reviewRating] || 'Tap a star to rate'}
+          </div>
+
+          <div class="divider" style="margin:18px 0"></div>
+
+          <!-- Review text -->
+          <div class="form-group" style="margin-bottom:16px">
+            <div class="form-label">Your Review</div>
+            <textarea class="form-textarea" id="reviewText" placeholder="How was your experience trading with this person? Were they responsive, did the card arrive as described?…" style="min-height:120px" maxlength="1000"></textarea>
+          </div>
+
+          <!-- Shipping time -->
+          <div class="form-group" style="margin-bottom:20px">
+            <div class="form-label">Shipping Time <span style="font-weight:400;text-transform:none;color:var(--muted)">(optional)</span></div>
+            <input class="form-input" id="reviewShipping" placeholder="e.g. 3 days, 1 week…">
+            <div style="font-size:11px;color:var(--muted);margin-top:5px">This helps the community know how fast this trader ships</div>
+          </div>
+
+          <!-- Submit -->
+          <button class="review-submit-btn" id="reviewSubmitBtn" onclick="handleSubmitReview()"
+            ${state.reviewRating === 0 ? 'disabled' : ''}>
+            ${state.reviewRating === 0 ? 'Select a rating to continue' : 'Submit Review 🌸'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function hoverStar(n) {
+    state.reviewHover = n;
+    for (let i = 1; i <= 5; i++) {
+      const s = document.getElementById('star' + i);
+      if (s) {
+        s.classList.toggle('lit', i <= state.reviewRating);
+        s.classList.toggle('hover', i <= n);
+      }
+    }
+  }
+
+  function unhoverStar() {
+    state.reviewHover = 0;
+    for (let i = 1; i <= 5; i++) {
+      const s = document.getElementById('star' + i);
+      if (s) {
+        s.classList.remove('hover');
+        s.classList.toggle('lit', i <= state.reviewRating);
+      }
+    }
+    const labels = ['', 'Terrible 😞', 'Poor 😕', 'Okay 😐', 'Good 😊', 'Amazing! 🌸'];
+    const lbl = document.getElementById('ratingLabel');
+    if (lbl) lbl.textContent = labels[state.reviewRating] || 'Tap a star to rate';
+  }
+
+  function setStar(n) {
+    state.reviewRating = n;
+    const labels = ['', 'Terrible 😞', 'Poor 😕', 'Okay 😐', 'Good 😊', 'Amazing! 🌸'];
+    const lbl = document.getElementById('ratingLabel');
+    if (lbl) lbl.textContent = labels[n];
+    for (let i = 1; i <= 5; i++) {
+      const s = document.getElementById('star' + i);
+      if (s) { s.classList.toggle('lit', i <= n); s.classList.remove('hover'); }
+    }
+    const btn = document.getElementById('reviewSubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Review 🌸'; }
+  }
+
+  async function handleSubmitReview() {
+    if (!state.reviewRating) { toast('Please select a rating', 'error'); return; }
+    const target = state.reviewTargetUser;
+    if (!target) return;
+
+    const reviewText = document.getElementById('reviewText')?.value?.trim() || null;
+    const shippingTime = document.getElementById('reviewShipping')?.value?.trim() || null;
+
+    const btn = document.getElementById('reviewSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+    try {
+      await api('/reviews', {
+        method: 'POST',
+        body: JSON.stringify({
+          reviewed_user_id: target.id,
+          rating: state.reviewRating,
+          review_text: reviewText,
+          shipping_time: shippingTime,
+        })
+      });
+      toast('Review submitted! Thank you 🌸', 'success');
+      state.reviewRating = 0;
+      goTo('profile', { userId: target.id });
+    } catch(e) {
+      toast(e.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit Review 🌸'; }
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  //  MAIN RENDER
+  // ═══════════════════════════════════════════════
+  function render() {
+    const root = document.getElementById('root');
+    switch (state.page) {
+      case 'auth':        root.innerHTML = renderAuth(); break;
+      case 'discover':    root.innerHTML = renderDiscover(); break;
+      case 'post':        root.innerHTML = renderPost(); break;
+      case 'profile':     root.innerHTML = renderProfile(); break;
+      case 'create':      root.innerHTML = renderCreate(); break;
+      case 'editprofile': root.innerHTML = renderEditProfile(); break;
+      case 'review':      root.innerHTML = renderReview(); break;
+      case 'messages':    root.innerHTML = renderMessages(); break;
+      default:            root.innerHTML = renderDiscover();
+    }
+    // Restore search input value
+    const si = document.getElementById('searchInput');
+    if (si && state.discoverSearch) si.value = state.discoverSearch;
+  }
+
+  // ═══════════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════════
+  async function init() {
+    const token = getToken();
+    if (token) {
+      try {
+        const d = await api('/auth/me');
+        state.user = d.user;
+        // update avatar
+        const ab = document.getElementById('myAvatarBtn');
+        if (ab && state.user?.avatar_url) {
+          ab.innerHTML = `<img src="${esc(state.user.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:999px">`;
+        }
+      } catch(e) { clearToken(); }
+    }
+    await goTo('discover');
+  }
+
+  init();
+  </script>
+</body>
+</html>    /* ── CARD INVENTORY ── */
+    .inv-page { max-width: 900px; margin: 0 auto; }
+
+    /* section header row */
+    .inv-section-head {
+      display: flex; align-items: baseline; gap: 28px;
+      margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .inv-section-title {
+      font-family: var(--font-serif); font-size: 22px; color: var(--ink);
+      flex-shrink: 0;
+    }
+    .inv-inline-stats {
+      display: flex; gap: 22px; flex-wrap: wrap;
+    }
+    .inv-inline-stat { text-align: center; }
+    .inv-inline-num {
+      font-size: 18px; font-weight: 900; color: var(--ink);
+      line-height: 1;
+    }
+    .inv-inline-lbl {
+      font-size: 11px; color: var(--muted); font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* binder row */
+    .inv-binder-row {
+      display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start;
+    }
+
+    /* individual binder thumb */
+    .inv-binder-thumb {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 7px; cursor: pointer;
+      animation: fadeUp .3s ease both;
+    }
+    .inv-binder-thumb-img {
+      width: 86px; height: 86px; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(249,184,208,.3), rgba(212,184,249,.3));
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2px; overflow: hidden;
+      transition: .2s ease;
+      position: relative;
+    }
+    .inv-binder-thumb:hover .inv-binder-thumb-img {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+      border-color: var(--lavender);
+    }
+    .inv-binder-cover-cell {
+      background: linear-gradient(135deg, rgba(249,184,208,.25), rgba(212,184,249,.25));
+      overflow: hidden;
+    }
+    .inv-binder-cover-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .inv-binder-cover-cell:first-child { grid-row: 1 / 3; }
+    .inv-binder-cover-empty {
+      width: 86px; height: 86px; border-radius: 20px;
+      display: grid; place-items: center;
+    }
+    .inv-binder-label {
+      font-size: 12px; font-weight: 700; color: var(--ink2);
+      text-align: center; max-width: 86px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .inv-binder-count {
+      font-size: 10px; color: var(--muted); font-weight: 700;
+      text-align: center; margin-top: -4px;
+    }
+
+    /* new binder / new card add button */
+    .inv-add-thumb {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 7px; cursor: pointer;
+      animation: fadeUp .3s ease both;
+    }
+    .inv-add-thumb-circle {
+      width: 86px; height: 86px; border-radius: 20px;
+      border: 2px solid var(--lavender);
+      background: rgba(237,224,255,.12);
+      display: grid; place-items: center;
+      transition: .2s ease;
+    }
+    .inv-add-thumb:hover .inv-add-thumb-circle {
+      background: var(--lilac); border-color: var(--lav-deep);
+      transform: translateY(-3px); box-shadow: var(--shadow-sm);
+    }
+    .inv-add-thumb-label {
+      font-size: 12px; font-weight: 700; color: var(--ink2);
+      text-align: center;
+    }
+
+    /* divider between sections */
+    .inv-section-divider {
+      height: 1.5px; background: var(--border); margin: 28px 0;
+    }
+
+    /* full collection grid */
+    .inv-full-grid {
+      display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start;
+    }
+    .inv-full-card {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 7px; cursor: pointer;
+      animation: fadeUp .3s ease both;
+    }
+    .inv-full-card-img {
+      width: 86px; height: 86px; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(249,184,208,.25), rgba(212,184,249,.25));
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden; position: relative;
+      transition: .2s ease;
+    }
+    .inv-full-card:hover .inv-full-card-img {
+      transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--lavender);
+    }
+    .inv-full-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .inv-full-card-img:hover .inv-full-card-actions { opacity: 1; }
+    .inv-full-card-actions {
+      position: absolute; inset: 0; border-radius: 18px;
+      background: rgba(42,26,53,.45);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      opacity: 0; transition: .18s ease;
+    }
+    .inv-full-card-action {
+      width: 28px; height: 28px; border-radius: 999px;
+      background: rgba(255,255,255,.9); border: none; cursor: pointer;
+      display: grid; place-items: center; font-size: 12px;
+      transition: .12s ease;
+    }
+    .inv-full-card-action:hover { transform: scale(1.1); background: white; }
+    .inv-full-badge {
+      position: absolute; top: 5px; left: 5px;
+      padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800;
+      background: linear-gradient(135deg, var(--pink), var(--lavender));
+      color: var(--ink);
+    }
+    .inv-full-cond {
+      position: absolute; top: 5px; right: 5px;
+      padding: 2px 6px; border-radius: 999px; font-size: 9px; font-weight: 800;
+      background: rgba(255,255,255,.88); color: var(--ink2);
+    }
+    .inv-full-label {
+      font-size: 12px; font-weight: 700; color: var(--ink2);
+      text-align: center; max-width: 86px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .inv-full-meta {
+      font-size: 10px; color: var(--muted); font-weight: 700;
+      text-align: center; margin-top: -4px; max-width: 86px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* binder detail */
+    .inv-binder-detail-head {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap;
+    }
