@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.db import create_indexes
 from app.routes import auth, users, posts, reviews, uploads, messages
-
 
 app = FastAPI(title="UTradeMi API")
 
@@ -24,7 +24,11 @@ app.include_router(reviews.router,  prefix="/api/reviews",  tags=["reviews"])
 app.include_router(uploads.router,  prefix="/api/uploads",  tags=["uploads"])
 app.include_router(messages.router, prefix="/api/messages", tags=["messages"])
 
-
 @app.get("/api/health")
 async def health() -> dict:
     return {"ok": True}
+
+# Serve frontend — must be LAST
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("Frontend.html")
