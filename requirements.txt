@@ -9,4 +9,4 @@ pydantic
 email-validator
 python-multipart
 cloudinary
-aoifiles
+aiofiles
