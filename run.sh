@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_DIR="$HOME/UTradeMi"
+APP_DIR="/home/ubuntu/UTradeMi"
 PY="$APP_DIR/.venv/bin/python"
 
 cd "$APP_DIR"
