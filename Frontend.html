@@ -1073,6 +1073,7 @@
     page: 'discover',
     user: null,
     authTab: 'login',
+    userLikedIds: new Set(),
     discoverFilters: new Set(),  // multi-select: set of 'trading','iso','selling','for_purchase'
     discoverSort: 'recent',
     discoverTag: null,
@@ -1270,10 +1271,11 @@
 
       // Load user's liked posts for the revisit section
       if (state.user) {
-        try {
+         try {
           const liked = await api(`/users/${state.user.id}/likes`);
           state.likedPosts = liked.posts || [];
-        } catch(e) { state.likedPosts = []; }
+          state.userLikedIds = new Set(state.likedPosts.map(p => p.id));
+        } catch(e) { state.likedPosts = []; state.userLikedIds = new Set(); }
       }
     } catch(e) { toast(e.message, 'error'); }
     state.discoverLoading = false;
@@ -1283,11 +1285,20 @@
   async function handleLike(postId, e) {
     e.stopPropagation();
     if (!state.user) { goTo('auth'); return; }
+    const alreadyLiked = state.userLikedIds && state.userLikedIds.has(postId);
     try {
-      await api(`/posts/${postId}/like`, { method: 'POST' });
-      state.discoverLikes[postId] = (state.discoverLikes[postId] || 0) + 1;
+      if (alreadyLiked) {
+        await api(`/posts/${postId}/like`, { method: 'DELETE' });
+        state.discoverLikes[postId] = Math.max((state.discoverLikes[postId] || 1) - 1, 0);
+        if (state.userLikedIds) state.userLikedIds.delete(postId);
+      } else {
+        await api(`/posts/${postId}/like`, { method: 'POST' });
+        state.discoverLikes[postId] = (state.discoverLikes[postId] || 0) + 1;
+        if (!state.userLikedIds) state.userLikedIds = new Set();
+        state.userLikedIds.add(postId);
+      }
       render();
-    } catch(e) { /* already liked */ }
+    } catch(e) { toast(e.message, 'error'); }
   }
 
   // Build tag frequency map from all current posts
@@ -1807,10 +1818,10 @@
                      </span>`
                   : pillFor(p.type)
                 }
-                <div class="post-like-badge">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="${likes > 0 ? '#f9b8d0' : 'none'}">
+                <div class="post-like-badge" onclick="handleLike('${esc(p.id)}', event)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="${state.userLikedIds && state.userLikedIds.has(p.id) ? '#f9b8d0' : 'none'}">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                      stroke="${likes > 0 ? '#f086b0' : '#b09abf'}" stroke-width="2" stroke-linejoin="round"/>
+                      stroke="${state.userLikedIds && state.userLikedIds.has(p.id) ? '#f086b0' : '#b09abf'}" stroke-width="2" stroke-linejoin="round"/>
                   </svg>
                   ${likes}
                 </div>
